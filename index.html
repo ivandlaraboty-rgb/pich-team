@@ -407,6 +407,18 @@ table.tbl{border-collapse:separate;border-spacing:3px;font-size:13px}
 .bigkassa small{display:block;font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--green-dim);margin-top:4px}
 .bar{height:16px;border-radius:var(--r-xl,999px);background:var(--bar-bg);border:var(--bw,2px) solid var(--bar-line);overflow:hidden;margin:6px 0}
 .bar i{display:block;height:100%;border-radius:var(--r-xl,999px);background:linear-gradient(90deg,var(--bar-a),var(--accent));transition:width .4s}
+.bar.thin{height:10px;margin:7px 0 0}
+.paybar{display:flex;height:16px;border-radius:var(--r-xl,999px);overflow:hidden;background:var(--bar-bg);border:var(--bw,2px) solid var(--bar-line);margin:4px 0 8px}
+.paybar i{display:block;height:100%}
+.legend{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:13px;font-weight:700;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;flex:none}
+.vbars{display:flex;align-items:flex-end;gap:3px;height:128px;padding-top:4px}
+.vb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;min-width:0}
+.vb i{display:block;width:100%;min-height:3px;border-radius:var(--r-sm,6px) var(--r-sm,6px) 2px 2px;background:var(--accent);opacity:.42}
+.vb.pk i{opacity:1}
+.vb small{font-size:10px;font-weight:800;color:var(--dim);margin-top:4px;line-height:1}
+.sales-li .main-t{white-space:normal}
 .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:12px}
 .mini{background:var(--panel2);border-radius:var(--r-md,14px);padding:9px 6px;text-align:center;min-width:0}
 .mini b{display:block;font-size:17px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -565,6 +577,7 @@ var PICH_ICONS = {
   clock: '<circle cx="12" cy="12" r="9.6" fill="#c7a6f2"/><circle cx="12" cy="12" r="7.3" style="fill:var(--icl,#fdf1d8)"/><path d="M12 7.6V12l2.9 2" stroke="#5b3f86" stroke-width="1.8" stroke-linecap="round" fill="none"/><circle cx="12" cy="12" r="1.1" fill="#5b3f86"/>',
   warn: '<circle cx="12" cy="12" r="10" fill="#ef7458"/><rect x="10.8" y="5.8" width="2.4" height="8.4" rx="1.2" style="fill:var(--icl,#fdf1d8)"/><circle cx="12" cy="17.4" r="1.5" style="fill:var(--icl,#fdf1d8)"/>',
   minus: '<circle cx="12" cy="12" r="10" fill="#ef7458"/><rect x="6.6" y="10.8" width="10.8" height="2.4" rx="1.2" style="fill:var(--icl,#fdf1d8)"/>',
+  chart: '<rect x="2.6" y="2.8" width="18.8" height="18.4" rx="3.4" style="fill:var(--icl,#fdf1d8)"/><rect x="5.6" y="12.2" width="3.1" height="5.8" rx="1" fill="#97dcae"/><rect x="10.45" y="8.2" width="3.1" height="9.8" rx="1" fill="#ec9440"/><rect x="15.3" y="5.4" width="3.1" height="12.6" rx="1" fill="#e6553a"/><path d="M5 19.3h14" stroke="#7a4423" stroke-width="1.6" stroke-linecap="round"/>',
   cash: '<rect x="4.4" y="3.6" width="17" height="11" rx="2.4" fill="#4f7c60"/><rect x="2.6" y="7" width="18.4" height="12" rx="2.4" fill="#97dcae"/><rect x="4.6" y="9" width="14.4" height="8" rx="1.4" fill="none" stroke="#5fae80" stroke-width="1.2"/><circle cx="11.8" cy="13" r="2.5" fill="#5fae80"/>',
   renew: '<path d="M19.2 11.6a7.2 7.2 0 0 1-12.6 5" stroke="#97dcae" stroke-width="2.4" stroke-linecap="round" fill="none"/><path d="M4.8 12.4a7.2 7.2 0 0 1 12.6-5" stroke="#97dcae" stroke-width="2.4" stroke-linecap="round" fill="none"/><path d="M17.9 3.6l-.4 4.1-4.1-.5M6.1 20.4l.4-4.1 4.1.5" stroke="#97dcae" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>',
   pencil: '<g transform="rotate(45 12 12)"><rect x="9.4" y="1.6" width="5.2" height="15.6" rx="1.2" fill="#e6a640"/><rect x="9.4" y="1.6" width="5.2" height="3.4" rx="1.2" fill="#f3c0b6"/><rect x="9.4" y="4.6" width="5.2" height="1.5" fill="#b5a596"/><path d="M9.4 17.2h5.2L12 21.8z" style="fill:var(--icl,#fdf1d8)"/><path d="M11.2 20.2h1.6L12 21.8z" fill="#3d2a1f"/><path d="M12 6.6v10" stroke="#c98a2a" stroke-width="1" opacity=".7"/></g>',
@@ -958,6 +971,130 @@ var PICH_CORE = (function () {
     });
     return { days: days, shops: shops, n: n, bad: bad };
   }
+  // ---------- продажи по позициям ----------
+  // Какой точке приложения отдан магазин aQsi: явная привязка, а при одной точке — она. '-' — не учитывать.
+  function aqsiPlace(db, shop) {
+    var map = (db.settings.aqsi && db.settings.aqsi.map) || {}, one = (db.places || []).length === 1 ? db.places[0].id : null;
+    if (map[shop] === '-') return null;
+    return map[shop] && byId(db.places, map[shop]) ? map[shop] : one;
+  }
+  // Время чека в поясе кофейни: { day, hour }. hour = -1, если времени в чеке нет.
+  function aqsiLocal(ts, offsetMin) {
+    ts = String(ts || '');
+    if (/^\d{4}-\d{2}-\d{2}$/.test(ts)) return { day: ts, hour: -1 };
+    if (/^\d{4}-\d{2}-\d{2}[T ]\d{2}/.test(ts) && !/(Z|[+-]\d\d:?\d\d)$/.test(ts)) return { day: ts.slice(0, 10), hour: +ts.slice(11, 13) };
+    var d = Date.parse(ts); if (!isFinite(d)) return { day: '', hour: -1 };
+    var x = new Date(d + offsetMin * 60000).toISOString();
+    return { day: x.slice(0, 10), hour: +x.slice(11, 13) };
+  }
+  // Вид оплаты: у aQsi type 1 — наличные, 2 — безналичные; данные эквайринга есть только у карты и QR.
+  function payKind(p) {
+    if (!p || typeof p !== 'object') return 'other';
+    if (p.acquiringData && typeof p.acquiringData === 'object') return 'card';
+    var t = p.type; if (typeof t === 'string' && /^\d+$/.test(t)) t = +t;
+    if (t === 1) return 'cash';
+    if (t === 2) return 'card';
+    if (typeof t === 'string') { if (/безнал|карт|card|qr|сбп|electron/i.test(t)) return 'card'; if (/нал|cash/i.test(t)) return 'cash'; }
+    return 'other';
+  }
+  // Позиции чека: название, количество, сумма и добавки. Телефоны покупателей и данные карт не берём.
+  function aqsiItems(raw) {
+    var list = pickv(raw, ['content.positions', 'positions', 'content.items', 'items']), out = [];
+    if (!Array.isArray(list)) return out;
+    list.forEach(function (p) {
+      if (!p || typeof p !== 'object') return;
+      var name = str(p.text != null ? p.text : p.name != null ? p.name : p.title, 80).replace(/\s+/g, ' ');
+      if (!name) return;
+      var q = numv(p.quantity != null ? p.quantity : p.count != null ? p.count : p.qty); if (q == null || q <= 0) q = 1;
+      var s = numv(p.amount != null ? p.amount : p.sum != null ? p.sum : p.total);
+      if (s == null) {
+        var price = numv(p.price), brutto = numv(p.priceBrutto), disc = numv(p.discountMoney);
+        if (price == null) price = brutto;
+        s = price == null ? 0 : price * q;
+        if (disc && disc > 0 && brutto != null && price != null && Math.abs(price - brutto) < 0.005) s -= disc;   // цена до скидки — вычитаем скидку позиции
+      }
+      var mods = [];
+      (Array.isArray(p.modifyOptions) ? p.modifyOptions : Array.isArray(p.modifiers) ? p.modifiers : []).forEach(function (m) {
+        var mn = m && typeof m === 'object' ? str(m.text != null ? m.text : m.name != null ? m.name : m.title, 60) : str(m, 60);
+        if (mn) mods.push(mn);
+      });
+      out.push({ name: name, q: q, s: Math.max(0, s), mods: mods });
+    });
+    return out;
+  }
+  function r2(n) { return Math.round(n * 100) / 100; }
+  function r3(n) { return Math.round(n * 1000) / 1000; }
+  // Продажи по дням и магазинам: позиции, часы, оплаты, кассиры. Возвраты вычитаются.
+  function aqsiSales(rows, offsetMin, from, to) {
+    var days = {}, seen = {};
+    (rows || []).forEach(function (raw) {
+      var r = aqsiReceipt(raw); if (!r || !r.sign) return;
+      if (r.id) { if (seen[r.id]) return; seen[r.id] = 1; }
+      var t = aqsiLocal(r.ts, offsetMin), day = t.day; if (!isDate(day)) return;
+      if ((from && day < from) || (to && day > to)) return;
+      var d = days[day] = days[day] || {}, key = r.shop || 'main', k = r.sign, amt = r.amount;
+      var g = d[key] = d[key] || { n: 0, r: 0, s: 0, it: {}, h: {}, pay: { card: 0, cash: 0, other: 0 }, ca: {}, mo: {} };
+      var items = aqsiItems(raw), sum = 0;
+      items.forEach(function (x) { sum += x.s; });
+      if (items.length && amt > 0 && Math.abs(sum - amt) > 0.5) {                 // скидка на чек и округления: делим сумму чека пропорционально
+        var qs = 0; items.forEach(function (x) { qs += x.q; });
+        items.forEach(function (x) { x.s = sum > 0 ? x.s * amt / sum : amt * x.q / qs; });
+      }
+      g.s += k * amt; if (k > 0) g.n++; else g.r++;
+      items.forEach(function (x) {
+        var a = g.it[x.name] = g.it[x.name] || [0, 0]; a[0] += k * x.q; a[1] += k * x.s;
+        x.mods.forEach(function (m) { g.mo[m] = (g.mo[m] || 0) + k * x.q; });
+      });
+      if (t.hour >= 0) { var hh = g.h[t.hour] = g.h[t.hour] || [0, 0]; if (k > 0) hh[0]++; hh[1] += k * amt; }
+      var pays = pickv(raw, ['content.checkClose.payments', 'checkClose.payments', 'payments', 'content.payments']), card = 0, other = 0, cash;
+      if (Array.isArray(pays) && pays.length) {
+        pays.forEach(function (p) { var v = numv(p && (p.amount != null ? p.amount : p.sum)) || 0, kind = payKind(p); if (kind === 'card') card += v; else if (kind === 'other') other += v; });
+        card = Math.min(amt, card); other = Math.min(amt - card, other); cash = amt - card - other;   // наличные — остаток: так сдача не завышает сумму
+      } else { other = amt; cash = 0; }
+      g.pay.card += k * card; g.pay.cash += k * cash; g.pay.other += k * other;
+      var cn = pickv(raw, ['cashier.name', 'cashierName']);
+      if (typeof cn === 'string' && (cn = str(cn, 40))) { var c = g.ca[cn] = g.ca[cn] || [0, 0]; if (k > 0) c[0]++; c[1] += k * amt; }
+    });
+    Object.keys(days).forEach(function (day) {
+      Object.keys(days[day]).forEach(function (key) {
+        var g = days[day][key];
+        g.s = r2(g.s);
+        Object.keys(g.it).forEach(function (n) { g.it[n] = [r3(g.it[n][0]), r2(g.it[n][1])]; });
+        Object.keys(g.h).forEach(function (n) { g.h[n][1] = r2(g.h[n][1]); });
+        Object.keys(g.ca).forEach(function (n) { g.ca[n][1] = r2(g.ca[n][1]); });
+        Object.keys(g.mo).forEach(function (n) { g.mo[n] = r3(g.mo[n]); });
+        g.pay = { card: r2(g.pay.card), cash: r2(g.pay.cash), other: r2(g.pay.other) };
+      });
+    });
+    return days;
+  }
+  // Свести дни в отчёт. list: [{ day, agg }] — уже только нужной точки.
+  function salesReport(list, from, to) {
+    var rep = { from: from || '', to: to || '', days: 0, s: 0, n: 0, r: 0, avg: 0, pay: { card: 0, cash: 0, other: 0 }, items: [], hours: [], wd: [], cashiers: [], mods: [], byDay: [] };
+    var it = {}, h = {}, ca = {}, mo = {}, bd = {};
+    (list || []).forEach(function (x) {
+      var g = x && x.agg; if (!g || !isDate(x.day)) return;
+      rep.s += g.s || 0; rep.n += g.n || 0; rep.r += g.r || 0;
+      var b = bd[x.day] = bd[x.day] || [0, 0]; b[0] += g.n || 0; b[1] += g.s || 0;
+      ['card', 'cash', 'other'].forEach(function (k) { rep.pay[k] += (g.pay && g.pay[k]) || 0; });
+      Object.keys(g.it || {}).forEach(function (n) { var a = it[n] = it[n] || [0, 0]; a[0] += g.it[n][0]; a[1] += g.it[n][1]; });
+      Object.keys(g.h || {}).forEach(function (n) { var a = h[n] = h[n] || [0, 0]; a[0] += g.h[n][0]; a[1] += g.h[n][1]; });
+      Object.keys(g.ca || {}).forEach(function (n) { var a = ca[n] = ca[n] || [0, 0]; a[0] += g.ca[n][0]; a[1] += g.ca[n][1]; });
+      Object.keys(g.mo || {}).forEach(function (n) { mo[n] = (mo[n] || 0) + g.mo[n]; });
+    });
+    rep.s = r2(rep.s); rep.avg = rep.n ? r2(rep.s / rep.n) : 0;
+    rep.pay = { card: r2(rep.pay.card), cash: r2(rep.pay.cash), other: r2(rep.pay.other) };
+    rep.items = Object.keys(it).map(function (n) { return { name: n, q: r3(it[n][0]), s: r2(it[n][1]) }; }).filter(function (x) { return x.q > 0.0005 || x.s > 0.005; }).sort(function (a, b) { return b.s - a.s || b.q - a.q; });
+    rep.hours = Object.keys(h).map(function (n) { return { h: +n, n: h[n][0], s: r2(h[n][1]) }; }).filter(function (x) { return x.h >= 0 && x.h < 24; }).sort(function (a, b) { return a.h - b.h; });
+    rep.cashiers = Object.keys(ca).map(function (n) { return { name: n, n: ca[n][0], s: r2(ca[n][1]) }; }).sort(function (a, b) { return b.s - a.s; });
+    rep.mods = Object.keys(mo).map(function (n) { return { name: n, q: r3(mo[n]) }; }).filter(function (x) { return x.q > 0.0005; }).sort(function (a, b) { return b.q - a.q; });
+    rep.byDay = Object.keys(bd).sort().map(function (d) { return { day: d, n: bd[d][0], s: r2(bd[d][1]) }; });
+    rep.days = rep.byDay.length;
+    var w = [0, 1, 2, 3, 4, 5, 6].map(function (i) { return { wd: i, s: 0, n: 0, days: 0 }; });
+    rep.byDay.forEach(function (x) { var o = w[dayIndex(x.day)]; o.s += x.s; o.n += x.n; o.days++; });
+    rep.wd = w.map(function (o) { return { wd: o.wd, days: o.days, s: o.days ? r2(o.s / o.days) : 0, n: o.days ? r2(o.n / o.days) : 0 }; });
+    return rep;
+  }
   // Записать итоги кассы в выручку. День, который админ исправил вручную (fixed), не трогаем.
   function aqsiApply(db, tot, now) {
     var a = db.settings.aqsi = db.settings.aqsi || {}, map = a.map || {}, one = (db.places || []).length === 1 ? db.places[0].id : null;
@@ -966,7 +1103,7 @@ var PICH_CORE = (function () {
     Object.keys(tot.shops || {}).forEach(function (k) { if (tot.shops[k] || a.shops[k] == null) a.shops[k] = tot.shops[k] || a.shops[k] || ''; });
     Object.keys(tot.days).forEach(function (day) {
       Object.keys(tot.days[day]).forEach(function (shop) {
-        var pid = map[shop] === '-' ? null : (map[shop] && byId(db.places, map[shop]) ? map[shop] : one);
+        var pid = aqsiPlace(db, shop);
         if (!pid) { if (map[shop] !== '-') unmapped[shop] = 1; return; }
         var k = day + '|' + pid, x = acc[k] = acc[k] || { amount: 0, checks: 0 };
         x.amount += tot.days[day][shop].amount; x.checks += tot.days[day][shop].checks;
@@ -1759,7 +1896,7 @@ var PICH_CORE = (function () {
     newDb: newDb, view: view, apply: apply, claim: claim, salary: salary, cardState: cardState, cardUsed: cardUsed,
     findByTg: findByTg, isAdmin: isAdmin, isLocked: isLocked, hoursBetween: hoursBetween, plannedHours: plannedHours,
     presetTimes: presetTimes, dayHours: dayHours, dayIndex: dayIndex, extraHours: extraHours, extraMins: extraMins, weekOf: weekOf, migrate: migrate,
-    aqsiOn: aqsiOn, aqsiCovers: aqsiCovers, aqsiReceipt: aqsiReceipt, aqsiDay: aqsiDay, aqsiTotals: aqsiTotals, aqsiApply: aqsiApply, findBySession: findBySession, addSession: addSession, ics: ics, findByCalKey: findByCalKey, pctForShift: pctForShift, tiersOn: tiersOn, tierPct: tierPct, choreState: choreState, cashMonth: cashMonth, CASH_OUT: CASH_OUT, CASH_IN: CASH_IN, CASH_BARISTA: CASH_BARISTA, quizBuild: quizBuild, quizLast: quizLast, genCode: genCode, placeOf: placeOf, multOf: multOf, pctFor: pctFor, revenueOf: revenueOf, salesShare: salesShare, sameDay: sameDay, overlaps: overlaps,
+    aqsiOn: aqsiOn, aqsiCovers: aqsiCovers, aqsiReceipt: aqsiReceipt, aqsiPlace: aqsiPlace, aqsiLocal: aqsiLocal, aqsiItems: aqsiItems, aqsiSales: aqsiSales, salesReport: salesReport, payKind: payKind, isDate: isDate, aqsiDay: aqsiDay, aqsiTotals: aqsiTotals, aqsiApply: aqsiApply, findBySession: findBySession, addSession: addSession, ics: ics, findByCalKey: findByCalKey, pctForShift: pctForShift, tiersOn: tiersOn, tierPct: tierPct, choreState: choreState, cashMonth: cashMonth, CASH_OUT: CASH_OUT, CASH_IN: CASH_IN, CASH_BARISTA: CASH_BARISTA, quizBuild: quizBuild, quizLast: quizLast, genCode: genCode, placeOf: placeOf, multOf: multOf, pctFor: pctFor, revenueOf: revenueOf, salesShare: salesShare, sameDay: sameDay, overlaps: overlaps,
     monthOf: monthOf, addDays: addDays, rateFor: rateFor, genId: genId, byId: byId, clone: clone, canIssue: canIssue,
     actions: Object.keys(A)
   };
@@ -1778,7 +1915,7 @@ var APP_LINK = 'https://t.me/Pichc0ffee_bot/desktop';
 // Адрес веб-версии (где лежит этот index.html). Пусто — тот же адрес, по которому приложение открыто в Telegram.
 var WEB_URL = '';
 // Когда собран этот файл — видно внизу профиля. Помогает понять, открылась ли новая версия.
-var BUILD = '21.11.2026 21:11';
+var BUILD = '23.11.2026 15:53';
 // ===============================================
 
 var C = PICH_CORE;
@@ -2139,7 +2276,7 @@ var STAT_LABELS = { 'tab:schedule': 'Вкладка «График»', 'tab:pay'
   revEdit: 'Внести выручку', revSave: 'Сохранить выручку', cashNew: 'ДДС: новая запись', cashEdit: 'ДДС: открыть запись', cashSave: 'ДДС: сохранить', choreDone: 'Отметить дело сделанным', choreUndo: 'Снять отметку дела',
   payStaff: 'Зарплата сотрудника', moneyNew: 'Премия / вычет / выплата', moneySave: 'Сохранить премию / вычет / выплату', lockMonth: 'Закрыть / открыть месяц',
   ttk: 'Открыть напиток', ttkEdit: 'Править ТТК', ttkCat: 'Раздел ТТК', photoView: 'Смотреть фото', card: 'Открыть абонемент', cardNew: 'Новый абонемент', cardMark: 'Отметить напиток', cardFilter: 'Фильтр абонементов',
-  staffEdit: 'Карточка сотрудника', staffNew: 'Новый сотрудник', staffSave: 'Сохранить сотрудника', share: 'Отправить приглашение', copyInvite: 'Скопировать приглашение', perm: 'Переключатель прав', profile: 'Профиль', setTheme: 'Сменить тему', closeSheet: 'Закрыть окно', back: 'Назад', quizStart: 'Аттестация: начать тест', quizAns: 'Аттестация: ответ', quizView: 'Аттестация: смотреть ошибки', quizTeam: 'Аттестация: результаты команды', exportOpen: 'Выгрузка в таблицу', exportGo: 'Выгрузка: Google-таблица', exportCsv: 'Выгрузка: файл', web: 'Веб-версия', webCode: 'Веб-версия: получить код', webLogin: 'Веб-версия: вход', webLogout: 'Веб-версия: выход', aqsiConnect: 'Касса: подключить', aqsiSync: 'Касса: обновить', aqsiBackfill: 'Касса: загрузить за 30 дней', aqsiTest: 'Касса: проверка', aqsiMap: 'Касса: магазин → точка', revUnfix: 'Касса: вернуть данные', stats: 'Статистика нажатий', salesEdit: 'Настройка процента', salesSave: 'Сохранить процент', placeEdit: 'Открыть точку', placeNew: 'Новая точка', choreEdit: 'Настроить дело', choreNew: 'Новое дело', cashDel: 'ДДС: удалить', demoSet: 'Демо: сменить роль', dlgOk: 'Подтвердить в диалоге', dlgNo: 'Отмена в диалоге', pickKind: 'Выбор вида смены', pickStaff: 'Выбор сотрудника', pickHidden: 'Выбор варианта', hrsStep: 'Часы: плюс / минус', ttkSearch: 'Поиск в ТТК' };
+  staffEdit: 'Карточка сотрудника', staffNew: 'Новый сотрудник', staffSave: 'Сохранить сотрудника', share: 'Отправить приглашение', copyInvite: 'Скопировать приглашение', perm: 'Переключатель прав', profile: 'Профиль', setTheme: 'Сменить тему', closeSheet: 'Закрыть окно', back: 'Назад', quizStart: 'Аттестация: начать тест', quizAns: 'Аттестация: ответ', quizView: 'Аттестация: смотреть ошибки', quizTeam: 'Аттестация: результаты команды', exportOpen: 'Выгрузка в таблицу', exportGo: 'Выгрузка: Google-таблица', exportCsv: 'Выгрузка: файл', web: 'Веб-версия', webCode: 'Веб-версия: получить код', webLogin: 'Веб-версия: вход', webLogout: 'Веб-версия: выход', aqsiConnect: 'Касса: подключить', aqsiSync: 'Касса: обновить', aqsiBackfill: 'Касса: загрузить за 30 дней', aqsiTest: 'Касса: проверка', aqsiMap: 'Касса: магазин → точка', revUnfix: 'Касса: вернуть данные', salesOpen: 'Продажи по позициям', salesPeriod: 'Продажи: период', salesPlace: 'Продажи: точка', salesSort: 'Продажи: сортировка', salesAll: 'Продажи: все позиции', salesCsv: 'Продажи: скачать файл', salesRetry: 'Продажи: повторить', stats: 'Статистика нажатий', salesEdit: 'Настройка процента', salesSave: 'Сохранить процент', placeEdit: 'Открыть точку', placeNew: 'Новая точка', choreEdit: 'Настроить дело', choreNew: 'Новое дело', cashDel: 'ДДС: удалить', demoSet: 'Демо: сменить роль', dlgOk: 'Подтвердить в диалоге', dlgNo: 'Отмена в диалоге', pickKind: 'Выбор вида смены', pickStaff: 'Выбор сотрудника', pickHidden: 'Выбор варианта', hrsStep: 'Часы: плюс / минус', ttkSearch: 'Поиск в ТТК' };
 var Remote = {
   call: function (body) {
     if (INIT_DATA) body.initData = INIT_DATA; else if (body.op !== 'web.login') body.session = WebAuth.key();
@@ -2432,6 +2569,7 @@ function vPay() {
     var revSec = sec('payrev', I('cash'), 'Выручка', '<div class="grid3"><div class="mini"><b>' + grp(revTot) + '</b><small>за месяц</small></div><div class="mini"><b>' + revM.length + '</b><small>' + plural(revM.length, ['день', 'дня', 'дней']) + ' внесено</small></div><div class="mini"><b>' + grp(salesTot) + '</b><small>процент команде</small></div></div>' +
       (multi() ? '<div class="note mt">' + places().map(function (pl) { return esc(pl.name) + ': ' + money(revM.filter(function (r) { return r.placeId === pl.id; }).reduce(function (n, r) { return n + r.amount; }, 0)); }).join(' · ') + '</div>' : '') +
       (revM.length ? '<div class="list mt">' + revM.map(function (r) { return '<button class="li" data-a="revEdit" data-date="' + r.date + '" data-id="' + r.placeId + '"><span class="em-ico">' + I('cash') + '</span><div class="main-t"><b>' + dayShort(r.date) + '</b><small>' + (multi() ? esc(placeName(r.placeId)) + ', ' : '') + '' + (r.src === 'aqsi' ? '' : 'внёс ') + esc(revBy(r)) + '</small></div><div class="end">' + money(r.amount) + '</div></button>'; }).join('') + '</div>' : '<div class="empty">В этом месяце выручку ещё не вносили. Её вносят из графика: нажми на день.</div>') +
+      ((C.aqsiOn(S.db) || MODE === 'demo') ? '<button class="btn wide mt" data-a="salesOpen">' + I('chart') + ' Продажи по позициям</button>' : '') +
       '<button class="btn wide mt" data-a="revEdit" data-date="' + todayISO() + '" data-id="' + places()[0].id + '">+ Внести или исправить выручку за любой день</button>', revTot ? money(revTot) : '');
     return sec('payteam', I('coin'), 'Зарплата команды', head + '<div class="list mt">' + (rows || '<div class="empty">В этом месяце смен нет.</div>') + '</div>' +
       '<button class="btn wide mt ' + (locked ? 'green' : '') + '" data-a="lockMonth" data-v="' + (locked ? 0 : 1) + '">' + (locked ? I('unlock') + ' Открыть месяц для правок' : I('lock') + ' Закрыть месяц') + '</button><div class="hint mt" style="text-align:center">В закрытом месяце бариста не могут менять свои часы.</div>') + revSec + cashSec();
@@ -2752,13 +2890,14 @@ SHEETS.exportData = function (a) {
 };
 function aqsiAdmin() {
   var a = S.db.settings.aqsi || {}, busy = S.aqsiBusy || '';
-  if (MODE === 'demo') return '<div class="note">Выручка может приходить сама из кассы aQsi: раз в час приложение забирает чеки и записывает выручку по дням и точкам. В демо касса не подключается.</div>';
+  if (MODE === 'demo') return '<div class="note">Выручка может приходить сама из кассы aQsi: раз в час приложение забирает чеки и записывает выручку по дням и точкам. Из тех же чеков видно, что и когда продаётся. В демо касса не подключается.</div><button class="btn wide mt" data-a="salesOpen">' + I('chart') + ' Пример отчёта по продажам</button>';
   if (!a.on) return '<div class="note">Подключи кассу — и выручка будет приходить сама, раз в час: по дням и по точкам, с числом чеков. Бариста больше не вносят её вручную.</div>' +
     '<div class="hint mt">Где взять ключ: личный кабинет aQsi → Настройки → Интеграции → Интеграция по внешнему API → «Добавить» → «Сгенерировать API-ключ». Нужна роль администратора в aQsi. Ключ показывается один раз.</div>' +
     '<label class="field mt"><span>API-ключ aQsi</span><input class="in" id="aqsiKey" type="password" autocomplete="off" spellcheck="false" placeholder="Вставь ключ"></label>' +
     '<button class="btn main wide" data-a="aqsiConnect"' + (busy ? ' disabled' : '') + '>' + (busy === 'connect' ? 'Подключаю и проверяю…' : 'Подключить кассу') + '</button>' +
     '<div class="hint mt">Ключ хранится только на сервере кофейни. В приложении его потом не видно, даже тебе.</div>';
-  var h = '<div class="row"><div class="grow"><b>Касса подключена</b><div class="hint">' + (a.last ? 'Выручка обновлена ' + whenStr(a.last) : 'Ещё не обновлялась') + '. Дальше — сама, раз в час.</div></div></div>';
+  var h = '<div class="row"><div class="grow"><b>Касса подключена</b><div class="hint">' + (a.last ? 'Выручка обновлена ' + whenStr(a.last) : 'Ещё не обновлялась') + '. Дальше — сама, раз в час.</div></div></div>' +
+    '<button class="btn main wide mt" data-a="salesOpen">' + I('chart') + ' Продажи по позициям</button>';
   if (a.lastErr) h += '<div class="warn mt">' + I('warn') + ' <b>Не получилось обновить' + (a.lastErrAt ? ' ' + whenStr(a.lastErrAt) : '') + ':</b> ' + esc(a.lastErr) + '</div>';
   var shops = Object.keys(a.shops || {}), map = a.map || {};
   if (shops.length > 1 || multi()) {
@@ -2769,7 +2908,7 @@ function aqsiAdmin() {
     if ((a.unmapped || []).length) h += '<div class="warn">' + I('warn') + ' Магазины без точки: ' + a.unmapped.map(function (k) { return esc(a.shops[k] || k); }).join(', ') + '. Их выручка не попадает в приложение, пока не выберешь точку.</div>';
   } else if (shops.length === 1) h += '<div class="note mt">Магазин «' + esc(a.shops[shops[0]] || shops[0]) + '» считается в точке «' + esc(places()[0].name) + '».</div>';
   h += '<div class="stack mt"><button class="btn wide" data-a="aqsiSync"' + (busy ? ' disabled' : '') + '>' + (busy === 'sync' ? 'Обновляю…' : 'Обновить сейчас') + '</button>' +
-    '<button class="btn wide" data-a="aqsiBackfill"' + (busy ? ' disabled' : '') + '>' + (busy === 'backfill' ? 'Загружаю…' : 'Загрузить выручку за 30 дней') + '</button>' +
+    '<button class="btn wide" data-a="aqsiBackfill"' + (busy ? ' disabled' : '') + '>' + (busy === 'backfill' ? 'Загружаю…' : 'Загрузить продажи за 30 дней') + '</button>' +
     '<button class="btn wide" data-a="aqsiTest"' + (busy ? ' disabled' : '') + '>' + (busy === 'test' ? 'Проверяю…' : 'Проверить подключение') + '</button></div>';
   h += '<div class="hint mt">Выручка = продажи минус возвраты. Если исправить день вручную, касса его больше не перезапишет.</div>';
   h += '<button class="btn danger wide mt" data-a="aqsiOff"' + (busy ? ' disabled' : '') + '>Отключить кассу</button>';
@@ -2789,6 +2928,135 @@ SHEETS.aqsiDiag = function (a) {
   if (a.after === 'connect' && (multi() || (d.shops || []).length > 1)) h += '<div class="note mt">Следующий шаг: в разделе «Касса aQsi» укажи, какой магазин к какой точке относится.</div>';
   return h;
 };
+// ---------- продажи по позициям (из чеков aQsi) ----------
+var SALES_PERIODS = [['today', 'Сегодня'], ['yest', 'Вчера'], ['7', '7 дней'], ['30', '30 дней'], ['month', 'Этот месяц'], ['prev', 'Прошлый месяц']];
+function salesRange(p) {
+  var t = todayISO(), first = t.slice(0, 8) + '01';
+  if (p === 'today') return [t, t];
+  if (p === 'yest') { var y = C.addDays(t, -1); return [y, y]; }
+  if (p === '7') return [C.addDays(t, -6), t];
+  if (p === '30') return [C.addDays(t, -29), t];
+  if (p === 'month') return [first, t];
+  var last = C.addDays(first, -1); return [last.slice(0, 8) + '01', last];
+}
+function salesLoad() {
+  var a = S.sheet && S.sheet.type === 'salesRep' ? S.sheet.args : null; if (!a) return;
+  var rg = salesRange(a.period), key = rg.join('|') + '|' + a.place, hit = (S.salesCache = S.salesCache || {})[key];
+  a.key = key; a.err = '';
+  if (hit && Date.now() - hit.at < 300000) { a.rep = hit.rep; a.since = hit.since; renderSheet(); return; }
+  a.rep = null; renderSheet();
+  var done = function (j) {
+    S.salesCache[key] = { rep: j.report, since: j.since || '', at: Date.now() };
+    if (S.sheet && S.sheet.args === a && a.key === key) { a.rep = j.report; a.since = j.since || ''; renderSheet(); }
+  };
+  if (MODE === 'demo') { done(demoSales(rg[0], rg[1], a.place)); return; }
+  Remote.call({ op: 'sales', from: rg[0], to: rg[1], place: a.place }).then(function (j) { if (j.needLogin) { webLost(); return; } done(j); },
+    function (e) { if (S.sheet && S.sheet.args === a && a.key === key) { a.err = e.message || 'Не получилось загрузить продажи'; renderSheet(); } });
+}
+function qty(q) { return q % 1 ? String(Math.round(q * 1000) / 1000).replace('.', ',') : grp(q) + ' шт'; }
+function pctOf(x, tot) { return tot > 0 ? Math.round(x / tot * 100) : 0; }
+function vbars(list, peak) {
+  var max = 0; list.forEach(function (x) { if (x.v > max) max = x.v; });
+  return '<div class="vbars">' + list.map(function (x) { return '<div class="vb' + (peak && x === peak ? ' pk' : '') + '" title="' + esc(x.t || '') + '"><i style="height:' + (max ? Math.max(2, Math.round(x.v / max * 100)) : 2) + '%"></i><small>' + esc(x.l) + '</small></div>'; }).join('') + '</div>';
+}
+SHEETS.salesRep = function (a) {
+  var rg = salesRange(a.period), sub = rg[0] === rg[1] ? dayLong(rg[0]) : dayShort(rg[0]) + ' – ' + dayShort(rg[1]);
+  var h = shHead('Продажи по позициям', esc(sub) + (MODE === 'demo' ? ' · пример с выдуманными цифрами' : ''));
+  h += '<div class="chips">' + SALES_PERIODS.map(function (p) { return '<button class="chip' + (a.period === p[0] ? ' on' : '') + '" data-a="salesPeriod" data-v="' + p[0] + '">' + p[1] + '</button>'; }).join('') + '</div>';
+  if (multi()) h += '<div class="chips">' + [['', 'Все точки']].concat(places().map(function (pl) { return [pl.id, pl.name]; })).map(function (p) { return '<button class="chip' + (a.place === p[0] ? ' on' : '') + '" data-a="salesPlace" data-v="' + esc(p[0]) + '">' + esc(p[1]) + '</button>'; }).join('') + '</div>';
+  if (a.err) return h + '<div class="warn mt">' + I('warn') + ' ' + esc(a.err) + '</div><button class="btn wide mt" data-a="salesRetry">Попробовать ещё раз</button>';
+  var r = a.rep; if (!r) return h + '<div class="note mt">Загружаю…</div>';
+  var busy = S.aqsiBusy === 'backfill';
+  var older = a.since && rg[0] < a.since && MODE !== 'demo';
+  if (!r.n && !r.r) return h + '<div class="empty">За этот период продаж нет.' + (a.since ? '<br>Позиции загружены начиная с ' + dayShort(a.since) + '.' : '') + '</div>' +
+    (MODE !== 'demo' ? '<button class="btn wide" data-a="aqsiBackfill"' + (busy ? ' disabled' : '') + '>' + (busy ? 'Загружаю…' : 'Загрузить продажи за 30 дней') + '</button>' : '');
+  h += '<div class="bigkassa mt"><b>' + money(r.s) + '</b><small>выручка' + (r.days > 1 ? ' за ' + r.days + ' ' + plural(r.days, ['день', 'дня', 'дней']) : '') + '</small></div>';
+  h += '<div class="grid3"><div class="mini"><b>' + grp(r.n) + '</b><small>' + plural(r.n, ['чек', 'чека', 'чеков']) + '</small></div><div class="mini"><b>' + grp(r.avg) + '</b><small>средний чек</small></div>' +
+    (r.days > 1 ? '<div class="mini"><b>' + grp(r.s / r.days) + '</b><small>в день</small></div>' : '<div class="mini"><b>' + grp(r.r) + '</b><small>' + plural(r.r, ['возврат', 'возврата', 'возвратов']) + '</small></div>') + '</div>';
+  if (r.days > 1 && r.r) h += '<div class="hint mt">Возвратов: ' + r.r + '. Они уже вычтены из выручки и позиций.</div>';
+  if (older) h += '<div class="note mt">Продажи по позициям есть с ' + dayShort(a.since) + '. Более ранние дни можно загрузить из кассы.</div>';
+  // оплаты
+  var pay = r.pay || {}, ptot = (pay.card || 0) + (pay.cash || 0) + (pay.other || 0);
+  if (ptot > 0) {
+    var kinds = [['card', 'Карта и QR', 'var(--accent)'], ['cash', 'Наличные', 'var(--green)'], ['other', 'Другое', 'var(--blue)']].filter(function (k) { return pay[k[0]] > 0; });
+    h += '<h3>Как платят</h3><div class="paybar">' + kinds.map(function (k) { return '<i style="width:' + (pay[k[0]] / ptot * 100) + '%;background:' + k[2] + '"></i>'; }).join('') + '</div>' +
+      '<div class="legend">' + kinds.map(function (k) { return '<span><i style="background:' + k[2] + '"></i>' + k[1] + ' ' + pctOf(pay[k[0]], ptot) + '% · ' + money(pay[k[0]]) + '</span>'; }).join('') + '</div>';
+  }
+  // позиции
+  var items = (r.items || []).slice();
+  if (a.sort === 'q') items.sort(function (x, y) { return y.q - x.q || y.s - x.s; });
+  var itot = 0, imax = 0; items.forEach(function (x) { itot += x.s; if ((a.sort === 'q' ? x.q : x.s) > imax) imax = a.sort === 'q' ? x.q : x.s; });
+  h += '<div class="row" style="margin-top:14px"><h3 class="grow" style="margin:0">Позиции</h3><div class="chips" style="padding:0"><button class="chip' + (a.sort !== 'q' ? ' on' : '') + '" data-a="salesSort" data-v="s">по сумме</button><button class="chip' + (a.sort === 'q' ? ' on' : '') + '" data-a="salesSort" data-v="q">по штукам</button></div></div>';
+  if (!items.length) h += '<div class="note mt">В чеках этого периода нет названий позиций.</div>';
+  else {
+    var show = a.all ? items : items.slice(0, 15);
+    h += '<div class="list">' + show.map(function (x) {
+      var v = a.sort === 'q' ? x.q : x.s;
+      return '<div class="li sales-li" style="display:block"><div class="row"><div class="main-t grow"><b>' + esc(x.name) + '</b></div><div class="end">' + money(x.s) + '</div></div>' +
+        '<div class="bar thin"><i style="width:' + Math.max(1, Math.round(v / (imax || 1) * 100)) + '%"></i></div><small class="note">' + qty(x.q) + ' · ' + pctOf(x.s, itot) + '% выручки</small></div>';
+    }).join('') + '</div>';
+    if (items.length > 15) h += '<button class="btn wide mt" data-a="salesAll">' + (a.all ? 'Показать первые 15' : 'Показать все позиции (' + items.length + ')') + '</button>';
+  }
+  if ((r.mods || []).length) h += '<h3>Добавки</h3><div class="list">' + r.mods.slice(0, 10).map(function (m) { return '<div class="li"><div class="main-t"><b>' + esc(m.name) + '</b></div><div class="end">' + qty(m.q) + '</div></div>'; }).join('') + '</div>';
+  // часы
+  var hours = (r.hours || []).filter(function (x) { return x.n > 0 || x.s > 0; });
+  if (hours.length) {
+    var h0 = hours[0].h, h1 = hours[hours.length - 1].h, byH = {}, list = [], peak = null;
+    hours.forEach(function (x) { byH[x.h] = x; });
+    for (var i = h0; i <= h1; i++) { var x = byH[i] || { h: i, n: 0, s: 0 }, it = { v: x.n, l: String(i), t: i + ':00 — ' + x.n + ' ' + plural(x.n, ['чек', 'чека', 'чеков']), x: x }; list.push(it); if (!peak || it.v > peak.v) peak = it; }
+    var perDay = r.days > 1 ? Math.round(peak.x.n / r.days * 10) / 10 : peak.x.n;
+    h += '<h3>По часам</h3>' + vbars(list, peak) + '<div class="hint mt">Больше всего чеков с ' + peak.x.h + ':00 до ' + (peak.x.h + 1) + ':00' + (r.days > 1 ? ': в среднем ' + String(perDay).replace('.', ',') + ' в день' : ': ' + peak.x.n) + '.</div>';
+  }
+  // дни недели
+  if (r.days >= 7 && (r.wd || []).length === 7) {
+    var wl = r.wd.map(function (w) { return { v: w.s, l: WD[w.wd], t: WD_FULL[w.wd] + ': в среднем ' + money(w.s), w: w }; }), wp = null;
+    wl.forEach(function (x) { if (x.w.days && (!wp || x.v > wp.v)) wp = x; });
+    h += '<h3>По дням недели</h3>' + vbars(wl, wp) + '<div class="hint mt">Средняя выручка за день. Сильнее всего ' + (wp ? WD_FULL[wp.w.wd].toLowerCase() + ': ' + money(wp.w.s) : '—') + '.</div>';
+  }
+  // кассиры
+  if ((r.cashiers || []).length) {
+    h += '<h3>Кто пробивал</h3><div class="list">' + r.cashiers.map(function (c) { return '<div class="li"><div class="main-t"><b>' + esc(c.name) + '</b><small>' + grp(c.n) + ' ' + plural(c.n, ['чек', 'чека', 'чеков']) + (c.n ? ', средний ' + money(c.s / c.n) : '') + '</small></div><div class="end">' + money(c.s) + '</div></div>'; }).join('') + '</div>';
+    if (r.cashiers.length === 1) h += '<div class="hint">Все чеки пробиты под одним кассиром. Если каждый бариста войдёт в кассу под своим именем, здесь будет видно, кто сколько продал.</div>';
+  }
+  if (items.length) h += '<button class="btn wide mt" data-a="salesCsv">Скачать позиции файлом</button>';
+  h += '<div class="hint mt">' + (MODE === 'demo' ? 'В рабочей версии данные берутся из чеков кассы aQsi и обновляются раз в час.' : 'Данные из чеков кассы aQsi, обновляются раз в час. Телефоны покупателей и данные карт приложение не сохраняет.') + '</div>';
+  if (older) h += '<button class="btn wide mt" data-a="aqsiBackfill"' + (busy ? ' disabled' : '') + '>' + (busy ? 'Загружаю…' : 'Загрузить продажи за 30 дней') + '</button>';
+  return h;
+};
+// Демо: выдуманные чеки в том же виде, что присылает aQsi, и тот же расчёт, что на сервере.
+function demoRnd(seed) { var h = 2166136261; for (var i = 0; i < seed.length; i++) { h ^= seed.charCodeAt(i); h = Math.imul(h, 16777619); } return function () { h += 0x6D2B79F5; var t = h; t = Math.imul(t ^ t >>> 15, t | 1); t ^= t + Math.imul(t ^ t >>> 7, t | 61); return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function demoSales(from, to, place) {
+  var drinks = (S.db.ttk || []).filter(function (t) { return !t.hidden && t.name; }).slice(0, 12).map(function (t) { return t.name; });
+  if (drinks.length < 4) drinks = ['Капучино', 'Латте', 'Американо', 'Раф', 'Флэт уайт', 'Какао'];
+  var hot = /капуч|латте|американо|флэт|раф/i; drinks.sort(function (x, y) { return (hot.test(y) ? 1 : 0) - (hot.test(x) ? 1 : 0); });
+  var food = [['Круассан', 190], ['Чизкейк', 290], ['Синнабон', 240], ['Сэндвич с курицей', 350]], mods = ['Сироп', 'Растительное молоко', 'Доп. шот'];
+  var team = S.db.staff.filter(function (s) { return s.active !== false && s.role !== 'admin'; }).map(function (s) { return s.name; }).slice(0, 4);
+  if (!team.length) team = ['Касса'];
+  var hw = [[8, 5], [9, 9], [10, 7], [11, 5], [12, 7], [13, 9], [14, 6], [15, 5], [16, 5], [17, 7], [18, 6], [19, 4], [20, 2]], hsum = 0; hw.forEach(function (x) { hsum += x[1]; });
+  var now = new Date(), today = todayISO(), list = [];
+  (place ? [place] : places().map(function (p) { return p.id; })).forEach(function (pid, pi) {
+    var rows = [], scale = pi ? 0.6 : 1;
+    for (var d = from, guard = 0; d <= to && guard < 400; d = C.addDays(d, 1), guard++) {
+      var rnd = demoRnd(d + pid), wd = C.dayIndex(d), checks = Math.round((58 + (wd >= 5 ? 22 : 0)) * (0.8 + rnd() * 0.4) * scale);
+      for (var i = 0; i < checks; i++) {
+        var pick = rnd() * hsum, hour = 8; for (var j = 0; j < hw.length; j++) { pick -= hw[j][1]; if (pick <= 0) { hour = hw[j][0]; break; } }
+        if (d === today && hour > now.getHours()) continue;
+        var pos = [], k = 1 + (rnd() < 0.3 ? 1 : 0) + (rnd() < 0.07 ? 1 : 0);
+        for (var m = 0; m < k; m++) {
+          if (m && rnd() < 0.55) { var f = food[Math.floor(rnd() * rnd() * food.length)]; pos.push({ text: f[0], price: f[1], priceBrutto: f[1], quantity: 1, modifyOptions: [] }); continue; }
+          var di = Math.floor(rnd() * rnd() * drinks.length), price = 200 + (di % 5) * 30;
+          pos.push({ text: drinks[di], price: price, priceBrutto: price, quantity: 1, modifyOptions: rnd() < 0.18 ? [{ name: mods[Math.floor(rnd() * mods.length)] }] : [] });
+        }
+        var amount = 0; pos.forEach(function (x) { amount += x.price; });
+        rows.push({ id: pid + d + '-' + i, processedAt: d + 'T' + pad(hour) + ':' + pad(Math.floor(rnd() * 60)) + ':00', amount: amount, cashier: { name: team[(i + wd) % team.length] },
+          content: { type: rnd() < 0.008 ? 2 : 1, positions: pos, checkClose: { payments: [rnd() < 0.8 ? { type: 2, amount: amount, acquiringData: {} } : { type: 1, amount: amount }] } } });
+      }
+    }
+    var days = C.aqsiSales(rows, 180, from, to);
+    Object.keys(days).forEach(function (day) { list.push({ day: day, agg: days[day].main }); });
+  });
+  return { report: C.salesReport(list, from, to), since: C.addDays(today, -120) };
+}
 SHEETS.cashEdit = function (a) {
   var x = a.item, out = x.kind !== 'in', cats = out ? (isAdmin() ? C.CASH_OUT : C.CASH_BARISTA) : C.CASH_IN, mine = a.isNew || isAdmin() || x.by === S.me.id;
   var h = shHead(a.isNew ? (out ? (isAdmin() ? 'Поставка или расход' : 'Поставка или закупка') : 'Приход денег') : (out ? 'Расход' : 'Приход'), a.isNew ? '' : 'внёс ' + esc((staff(x.by) || {}).name || '?'));
@@ -3321,11 +3589,24 @@ H.aqsiConnect = function () {
   aqsiCall('connect', { key: key }, function () { haptic('ok'); });
 };
 H.aqsiSync = function () { aqsiCall('sync', {}, function (j) { toast(j.unmapped && j.unmapped.length ? 'Обновлено. Есть магазины без точки — выбери точку' : j.written ? 'Выручка обновлена: ' + j.written + ' ' + plural(j.written, ['день', 'дня', 'дней']) : 'Новых данных нет', j.unmapped && j.unmapped.length ? 'err' : 'ok'); }); };
-H.aqsiBackfill = function () { ask('Загрузить выручку из кассы за последние 30 дней? Дни, которые ты исправлял вручную, не изменятся. Остальные заменятся данными кассы.', 'Загрузить', function () { aqsiCall('backfill', { days: 30 }, function (j) { toast('Загружено: ' + j.receipts + ' ' + plural(j.receipts, ['чек', 'чека', 'чеков']) + ', обновлено дней: ' + j.written, 'ok'); }); }, false); };
+H.aqsiBackfill = function () { ask('Загрузить из кассы выручку и продажи по позициям за последние 30 дней? Дни, которые ты исправлял вручную, не изменятся. Остальные заменятся данными кассы.', 'Загрузить', function () { aqsiCall('backfill', { days: 30 }, function (j) { S.salesCache = {}; toast('Загружено: ' + j.receipts + ' ' + plural(j.receipts, ['чек', 'чека', 'чеков']) + ', обновлено дней: ' + j.written, 'ok'); if (S.sheet && S.sheet.type === 'salesRep') salesLoad(); }); }, false); };
 H.aqsiTest = function () { aqsiCall('test'); };
 H.aqsiOff = function () { ask('Отключить кассу? Выручка перестанет приходить сама, ключ удалится с сервера. Уже загруженная выручка останется.', 'Отключить', function () { aqsiCall('off', {}, function () { toast('Касса отключена'); }); }); };
 H.aqsiMap = function (d) { var m = {}; m[d.shop] = d.v; if (act('aqsi.settings', { map: m })) toast('Сохранено. Выручка пересчитается при следующем обновлении', 'ok'); };
 H.aqsiCopy = function () { var d = S.sheet.args.diag; copy(JSON.stringify({ day: d.day, receipts: d.receipts, counted: d.counted, bad: d.bad, calls: d.calls, total: d.total, per: d.per, shops: (d.shops || []).length, shape: d.shape })); };
+H.salesOpen = function () { openSheet('salesRep', { period: '7', place: '', sort: 's' }); salesLoad(); };
+H.salesPeriod = function (d) { var a = S.sheet.args; a.period = d.v; a.all = false; salesLoad(); };
+H.salesPlace = function (d) { var a = S.sheet.args; a.place = d.v || ''; a.all = false; salesLoad(); };
+H.salesSort = function (d) { S.sheet.args.sort = d.v; renderSheet(); };
+H.salesAll = function () { S.sheet.args.all = !S.sheet.args.all; renderSheet(); };
+H.salesRetry = function () { salesLoad(); };
+H.salesCsv = function () {
+  var a = S.sheet.args, r = a.rep; if (!r) return;
+  var rg = salesRange(a.period), rows = [['Позиция', 'Количество', 'Сумма, ₽', 'Доля выручки, %']], tot = 0;
+  r.items.forEach(function (x) { tot += x.s; });
+  r.items.forEach(function (x) { rows.push([x.name, x.q, x.s, pctOf(x.s, tot)]); });
+  try { var el = document.createElement('a'); el.href = URL.createObjectURL(new Blob([toCsv(rows)], { type: 'text/csv;charset=utf-8' })); el.download = 'Продажи ' + rg[0] + (rg[1] !== rg[0] ? ' — ' + rg[1] : '') + '.csv'; document.body.appendChild(el); el.click(); el.remove(); toast('Файл скачан', 'ok'); } catch (e) { toast('Не получилось скачать файл', 'err'); }
+};
 H.revUnfix = function (d) { if (act('revenue.unfix', { id: d.id })) { toast('Вернул данные кассы', 'ok'); renderSheet(); } };
 H.review = function () { openSheet('review', {}, true); };
 H.placeNew = function () { openSheet('placeEdit', { isNew: true, item: { name: '', address: '' } }); };
