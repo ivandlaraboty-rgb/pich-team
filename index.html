@@ -619,8 +619,6 @@ html.fx-glass .tab.on .ti{transform:scale(1.1)}
   box-shadow:inset 0 1.5px 0 rgba(255,255,255,.5),inset 0 -1px 1px rgba(0,0,0,.2),inset 0 0 0 1px rgba(255,255,255,.14),0 4px 14px rgba(0,0,0,.2)}
 html.light .fx-drop{background:color-mix(in srgb,var(--accent) 12%,rgba(255,255,255,.55));box-shadow:inset 0 1.5px 0 #fff,inset 0 -1px 1px rgba(0,0,0,.06),inset 0 0 0 1px rgba(255,255,255,.7),0 4px 12px rgba(40,25,10,.12)}
 
-/* жидкий металл: логотип */
-canvas.fx-metal{width:46px;height:46px;flex:none;display:block}
 
 /* 3D-чашка в абонементе */
 .fx-cup3d{position:relative;height:196px;margin:-6px -6px 4px;touch-action:pan-y;cursor:grab}
@@ -632,7 +630,6 @@ canvas.fx-metal{width:46px;height:46px;flex:none;display:block}
 .fx-set .tog b{display:block}
 .fx-set .fx-src{font-size:11px;font-weight:800;letter-spacing:.04em;color:var(--dim);text-transform:uppercase}
 html.fx-glass[data-theme=banana] #tabs .tab.on .tl{color:var(--accent)}
-canvas.fx-metal-ic{width:1em;height:1em;display:inline-block;vertical-align:-.16em;flex:none;filter:drop-shadow(0 0 .6px rgba(70,40,25,.6))}
 
 /* ===== Стиль iOS 27: иконки и элементы управления ===== */
 html:is([data-theme=ios],[data-theme=iosd]){--g-edge:rgba(0,0,0,.36);--g-spec:rgba(255,255,255,.42);--g-fill:color-mix(in srgb,var(--panel3) 70%,rgba(255,255,255,.06));--g-lens:rgba(255,255,255,.17);--g-track:rgba(120,120,128,.36);--ios-green:#30D158}
@@ -9077,13 +9074,12 @@ void main() {
    1) Живой фон — порт шейдера ShaderGradient (github.com/ruucm/shadergradient, MIT): волнистая плоскость, шум Перлина, три цвета.
    2) Жидкое стекло — по мотивам liquid-glass-js (github.com/dashersw/liquid-glass-js, MIT): преломление у краёв по расстоянию до края,
       только на живом фоне через SVG-фильтр (Chrome/Android/Telegram Desktop), на iPhone — размытие с бликом.
-   3) Жидкий металл — логотип переливается, как металл (идея liquid.paper.design; свой шейдер).
    4) 3D — three.js (движок, на котором работает React Three Fiber): чашка в абонементе и зёрна при отметке напитка.
    Каждый эффект включается/выключается в профиле, настройка хранится на устройстве. */
 (function () {
   'use strict';
   var KEY = 'pich_fx';
-  var DEF = { grad: true, glass: true, metal: true, metalIc: true, d3: true };
+  var DEF = { grad: true, glass: true, d3: true };
   var O = (function () { var o = {}; try { o = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) {} var r = {}; for (var k in DEF) r[k] = k in o ? !!o[k] : DEF[k]; return r; })();
   function save() { try { localStorage.setItem(KEY, JSON.stringify(O)); } catch (e) {} }
   var root = document.documentElement;
@@ -9292,168 +9288,6 @@ void main() {
     },
     start: function () { this.on = true; root.classList.add('fx-glass'); var self = this; requestAnimationFrame(function () { self.sync(); }); },
     stop: function () { this.on = false; root.classList.remove('fx-glass', 'fx-refract'); var d = document.querySelector('#tabs .fx-drop'); if (d) d.remove(); this.prevX = null; }
-  };
-
-  // =====================================================================
-  // 3) ЖИДКИЙ МЕТАЛЛ — логотип
-  // =====================================================================
-  var METAL_VS = 'attribute vec2 aP;varying vec2 vUv;void main(){vUv=vec2(aP.x*.5+.5,.5-aP.y*.5);gl_Position=vec4(aP,0.,1.);}';
-  var METAL_FS = [
-    'precision highp float;uniform sampler2D uAlb,uN;uniform float uT,uMix;varying vec2 vUv;',
-    // окружение — полосы неба/горизонта, которые медленно текут по диагонали
-    'float band(vec3 r,float sh){float s=r.x*.85+r.y*1.7+sh;float b=.5+.5*sin(s*6.6-uT*1.5+1.7*sin(uT*.43+r.x*2.3));b=smoothstep(.12,.96,b);float sky=smoothstep(-.35,.7,r.y);return .1+.86*(b*.78+sky*.22);}',
-    'void main(){vec2 uv=vUv;',
-    '  vec2 w=vec2(sin(uv.y*11.+uT*1.7)+.6*sin((uv.x+uv.y)*7.-uT*1.1),cos(uv.x*10.-uT*1.35)+.6*sin((uv.x-uv.y)*8.+uT*.8))*.0045;',
-    '  vec4 a=texture2D(uAlb,uv);if(a.a<.004)discard;',
-    '  vec3 n=normalize(texture2D(uN,uv+w).xyz*2.-1.);vec3 r=reflect(vec3(0.,0.,-1.),n);',
-    '  float slope=clamp(length(n.xy)*2.2,0.,1.);',
-    '  vec3 env=vec3(band(r,-.05*slope),band(r,0.),band(r,.06*slope));',  // лёгкая радуга на скатах
-    '  vec3 alb=a.rgb/max(a.a,.001);',
-    '  vec3 metal=env*(.42+.78*alb);',
-    '  float fres=pow(1.-n.z,2.);float spec=pow(max(0.,dot(r,normalize(vec3(-.4,.6,.7)))),36.);',
-    '  float L=dot(alb,vec3(.299,.587,.114)),mm=smoothstep(.1,.42,L);',  // тёмные детали (буквы, кофе) остаются эмалью и читаются
-    '  vec3 c=mix(alb,metal,uMix*mm)+(fres*.18+spec*.55)*(.25+.75*mm)*(.4+.6*uMix/.72);',
-    '  gl_FragColor=vec4(c*a.a,a.a);}'
-  ].join('\n');
-
-  var FF = null;
-  function fontFaces() {
-    if (FF != null) return FF; FF = '';
-    try { for (var i = 0; i < document.styleSheets.length; i++) { var rs = document.styleSheets[i].cssRules || []; for (var j = 0; j < rs.length; j++) if (rs[j].type === 5) FF += rs[j].cssText + '\n'; } } catch (e) {}
-    return FF;
-  }
-  function resolveVars(str) { return str.replace(/var\((--[\w-]+)\s*(?:,\s*([^()]*?))?\)/g, function (m, n, fb) { return cssVar(n) || (fb || '').trim() || '#000'; }); }
-  function svgKey(svg, N) { return resolveVars(svg.outerHTML.replace(/(id="|url\(#)[^")]*/g, '$1')) + '|' + N; } // случайные id не считаем изменением
-  function blurF(src, N, r, passes) {
-    var a = src, b = new Float32Array(N * N);
-    for (var p = 0; p < passes; p++) {
-      for (var y = 0; y < N; y++) { var s = 0; for (var k = -r; k <= r; k++) s += a[y * N + Math.min(N - 1, Math.max(0, k))]; for (var xx = 0; xx < N; xx++) { b[y * N + xx] = s / (2 * r + 1); s += a[y * N + Math.min(N - 1, xx + r + 1)] - a[y * N + Math.max(0, xx - r)]; } }
-      var t2 = new Float32Array(N * N);
-      for (var xx2 = 0; xx2 < N; xx2++) { var s2 = 0; for (var k2 = -r; k2 <= r; k2++) s2 += b[Math.min(N - 1, Math.max(0, k2)) * N + xx2]; for (var y2 = 0; y2 < N; y2++) { t2[y2 * N + xx2] = s2 / (2 * r + 1); s2 += b[Math.min(N - 1, y2 + r + 1) * N + xx2] - b[Math.max(0, y2 - r) * N + xx2]; } }
-      a = t2;
-    }
-    return a;
-  }
-
-  // один общий WebGL-рендерер на логотип и все иконки: рисует их по очереди и копирует картинку в 2D-холст каждой
-  var MetalGL = {
-    cv: null, gl: null, p: null, u: {}, dead: false, cache: {}, n: 0,
-    init: function () {
-      if (this.gl || this.dead) return !!this.gl;
-      var cv = document.createElement('canvas'); cv.width = cv.height = 192;
-      var gl = getGL(cv, { antialias: false, alpha: true, premultipliedAlpha: true, depth: false, preserveDrawingBuffer: false });
-      if (!gl) { this.dead = true; return false; }
-      try { this.p = program(gl, METAL_VS, METAL_FS); } catch (e) { console.warn('fx metal', e); this.dead = true; return false; }
-      var b = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, b); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
-      gl.useProgram(this.p); var loc = gl.getAttribLocation(this.p, 'aP'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
-      var self = this; ['uAlb', 'uN', 'uT', 'uMix'].forEach(function (k) { self.u[k] = gl.getUniformLocation(self.p, k); });
-      gl.uniform1i(this.u.uAlb, 0); gl.uniform1i(this.u.uN, 1);
-      cv.addEventListener('webglcontextlost', function (e) { e.preventDefault(); self.dead = true; Metal.stopLogo(); Metal.stopIc(); });
-      this.cv = cv; this.gl = gl; return true;
-    },
-    texParams: function () { var gl = this.gl; gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE); },
-    // svg → текстуры (цвет + нормали), один раз на каждый вид значка; готовность — асинхронно
-    prep: function (key, svg, N, look) {
-      var e = this.cache[key]; if (e) return e;
-      if (++this.n > 60) this.flush();
-      e = this.cache[key] = { ready: false, N: N, look: look };
-      var cl = svg.cloneNode(true); cl.setAttribute('xmlns', 'http://www.w3.org/2000/svg'); cl.setAttribute('width', N); cl.setAttribute('height', N); cl.removeAttribute('class');
-      if (cl.querySelector('text')) { var ff = fontFaces(); if (ff) { var stl = document.createElementNS('http://www.w3.org/2000/svg', 'style'); stl.textContent = ff; cl.insertBefore(stl, cl.firstChild); } } // буквы — тем же шрифтом
-      var url = URL.createObjectURL(new Blob([resolveVars(new XMLSerializer().serializeToString(cl))], { type: 'image/svg+xml' }));
-      var img = new Image(), self = this;
-      img.onload = function () { URL.revokeObjectURL(url); if (self.cache[key] === e && self.build(e, img)) { e.ready = true; Metal.remount(); } };
-      img.onerror = function () { URL.revokeObjectURL(url); };
-      img.src = url;
-      return e;
-    },
-    flush: function () { var gl = this.gl; for (var k in this.cache) { var e = this.cache[k]; if (e.tA) gl.deleteTexture(e.tA); if (e.tN) gl.deleteTexture(e.tN); } this.cache = {}; this.n = 1; },
-    // карта высот: скос по краю силуэта + общий купол + светлые детали чуть выпуклее; нормали считаются в float, без ступенек
-    build: function (e, img) {
-      var N = e.N, c = document.createElement('canvas'); c.width = c.height = N;
-      var x = c.getContext('2d'); x.drawImage(img, 0, 0, N, N);
-      var data; try { data = x.getImageData(0, 0, N, N).data; } catch (er) { return false; }
-      var A = new Float32Array(N * N), L = new Float32Array(N * N);
-      for (var i = 0; i < N * N; i++) { var a = data[i * 4 + 3] / 255; A[i] = a; L[i] = (0.299 * data[i * 4] + 0.587 * data[i * 4 + 1] + 0.114 * data[i * 4 + 2]) / 255 * a; }
-      var bev = blurF(A, N, Math.max(2, Math.round(N * 0.04)), 3), dome = blurF(A, N, Math.max(3, Math.round(N * 0.16)), 3), det = blurF(L, N, Math.max(1, Math.round(N * 0.026)), 3);
-      var Hf = new Float32Array(N * N);
-      var w = e.look.w;
-      for (var j = 0; j < N * N; j++) Hf[j] = Math.sqrt(Math.min(1, bev[j] * 1.1)) * w[0] + dome[j] * w[1] + det[j] * w[2];
-      var nm = new Uint8Array(N * N * 4), K = e.look.k, at = function (xx, yy) { return Hf[Math.min(N - 1, Math.max(0, yy)) * N + Math.min(N - 1, Math.max(0, xx))]; };
-      for (var y = 0; y < N; y++) for (var xq = 0; xq < N; xq++) {
-        var nx = -(at(xq + 2, y) - at(xq - 2, y)) * K, ny = (at(xq, y + 2) - at(xq, y - 2)) * K, l = Math.sqrt(nx * nx + ny * ny + 1), o = (y * N + xq) * 4;
-        nm[o] = (nx / l * 0.5 + 0.5) * 255; nm[o + 1] = (ny / l * 0.5 + 0.5) * 255; nm[o + 2] = (1 / l * 0.5 + 0.5) * 255; nm[o + 3] = 255;
-      }
-      var gl = this.gl; e.tA = gl.createTexture(); e.tN = gl.createTexture();
-      gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-      gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, e.tA); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, c); this.texParams();
-      gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
-      gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, e.tN); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, N, N, 0, gl.RGBA, gl.UNSIGNED_BYTE, nm); this.texParams();
-      return true;
-    },
-    render: function (e, ctx, w, h, t) {
-      var gl = this.gl; w = Math.min(w, this.cv.width); h = Math.min(h, this.cv.height);
-      gl.viewport(0, 0, w, h); gl.useProgram(this.p); gl.uniform1f(this.u.uT, t); gl.uniform1f(this.u.uMix, e.look.mix);
-      gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, e.tA); gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, e.tN);
-      gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT); gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-      ctx.clearRect(0, 0, w, h); ctx.drawImage(this.cv, 0, this.cv.height - h, w, h, 0, 0, w, h);
-    }
-  };
-
-  // логотип — сильный рельеф и много металла; иконки мелкие — гладкий купол, рисунок и цвета сохраняются
-  var LOOK_LOGO = { w: [0.4, 0.3, 0.34], k: 15, mix: 0.72 }, LOOK_ICON = { w: [0.42, 0.5, 0.1], k: 7, mix: 0.5 };
-  var Metal = {
-    on: false, onIc: false, list: [], logoCv: null, pool: {}, raf: 0, last: 0, t: 0,
-    canvas: function (cls, label) {
-      var c = document.createElement('canvas'); c.className = cls;
-      if (label) { c.setAttribute('role', 'img'); c.setAttribute('aria-label', label); } else c.setAttribute('aria-hidden', 'true');
-      return c;
-    },
-    // подменяем svg холстом, когда текстуры готовы
-    attach: function (svg, cv, N, fb, phase, look) {
-      var e = MetalGL.prep(svgKey(svg, N), svg, N, look); if (!e.ready) return;
-      var size = Math.round(svg.getBoundingClientRect().width || fb);
-      cv.style.width = cv.style.height = size + 'px';
-      var px = Math.min(MetalGL.cv.width, Math.round(size * DPR)); if (cv.width !== px) { cv.width = cv.height = px; }
-      cv._e = e; if (cv._ph == null) cv._ph = phase;
-      svg.replaceWith(cv);
-      if (this.list.indexOf(cv) < 0) this.list.push(cv);
-      this.drawOne(cv); this.kick();
-    },
-    mountLogo: function () {
-      if (!this.on || !MetalGL.init()) return;
-      var svg = document.querySelector('#main .top svg.logo'); if (!svg) return;
-      if (!this.logoCv) this.logoCv = this.canvas('logo fx-metal', 'Логотип');
-      this.attach(svg, this.logoCv, 192, 46, 0, LOOK_LOGO);
-    },
-    mountIcons: function () {
-      if (!this.onIc || icMode() !== 'orig' || !MetalGL.init()) return;
-      var self = this;
-      Array.prototype.forEach.call(document.querySelectorAll('#tabs .tab'), function (b, i) {
-        var svg = b.querySelector('.ti > svg.ic'); if (!svg) return;
-        var k = b.getAttribute('data-v') || String(i), cv = self.pool[k] || (self.pool[k] = self.canvas('fx-metal-ic'));
-        self.attach(svg, cv, 112, 26, 1.3 + i * 1.7, LOOK_ICON); // у каждой иконки свой сдвиг, чтобы блики не бежали строем
-      });
-    },
-    remount: function () { this.mountLogo(); this.mountIcons(); },
-    drawOne: function (cv) { if (!cv._ctx) cv._ctx = cv.getContext('2d'); MetalGL.render(cv._e, cv._ctx, cv.width, cv.height, this.t + cv._ph); },
-    kick: function () { if (!RM && !this.raf) { this.last = 0; this.raf = requestAnimationFrame(this.loop); } },
-    loop: function (now) {
-      var self = Metal; self.raf = 0;
-      self.list = self.list.filter(function (c) { return c.isConnected; });
-      if (!self.list.length || document.hidden || MetalGL.dead) { self.last = 0; return; }
-      if (!self.last || now - self.last >= 31) {
-        var dt = self.last ? Math.min(0.1, (now - self.last) / 1000) : 0; self.last = now; self.t += dt;
-        self.list.forEach(function (c) { var r = c.getBoundingClientRect(); if (r.width && r.bottom > 0 && r.top < innerHeight) self.drawOne(c); });
-      }
-      self.raf = requestAnimationFrame(self.loop);
-    },
-    startLogo: function () { this.on = true; this.mountLogo(); },
-    startIc: function () { this.onIc = true; this.mountIcons(); },
-    stopLogo: function () {
-      this.on = false;
-      if (this.logoCv && this.logoCv.isConnected && typeof logo === 'function') { var t = document.createElement('div'); t.innerHTML = logo(); this.logoCv.replaceWith(t.firstChild); }
-    },
-    stopIc: function () { this.onIc = false; var any = false; for (var k in this.pool) if (this.pool[k].isConnected) any = true; if (any && typeof renderTabs === 'function') renderTabs(); }
   };
 
   // =====================================================================
@@ -9736,8 +9570,6 @@ void main() {
     if (O.grad) Grad.start(); else Grad.stop();
     Icons.sync();
     if (O.glass || isIos()) Glass.start(); else Glass.stop();
-    if (O.metal) Metal.startLogo(); else Metal.stopLogo();
-    if (O.metalIc && icMode() === 'orig') Metal.startIc(); else Metal.stopIc();
     if (O.d3) idle(function () { three(); }); else if (Burst.cv) Burst.cv.style.display = 'none';
   }
   function idle(f) { (window.requestIdleCallback || function (cb) { return setTimeout(cb, 1200); })(f, { timeout: 3000 }); }
@@ -9745,8 +9577,7 @@ void main() {
     var orig = window[name]; if (typeof orig !== 'function') return;
     window[name] = function () { var r = orig.apply(this, arguments); try { after.apply(this, arguments); } catch (e) { console.warn('fx', name, e); } return r; };
   }
-  wrap('renderMain', function () { if (O.metal) Metal.mountLogo(); });
-  wrap('renderTabs', function () { if (O.glass || isIos()) Glass.sync(); if (O.metalIc && icMode() === 'orig') Metal.mountIcons(); });
+  wrap('renderTabs', function () { if (O.glass || isIos()) Glass.sync(); });
   wrap('renderSheet', function () { if (O.d3) Cup.mount(); });
   wrap('applyTheme', function () { Grad.setColors(); applyAll(); });
   window.addEventListener('resize', function () { Glass.mapKey = ''; Glass.sync(); if (Cup.holder && Cup.holder.isConnected) { Cup.resize(); Cup.kick(); } });
@@ -9780,12 +9611,12 @@ void main() {
     SHEETS.profile = function () {
       var h = oProf.apply(this, arguments); if (h == null) return h;
       var row = function (k, title) {
-        var note = k === 'glass' && isIos() ? 'всегда включено в теме iOS 27' : k === 'metalIc' && icMode() !== 'orig' ? 'в этой теме у иконок свой стиль' : '';
-        var on = k === 'glass' ? (O.glass || isIos()) : k === 'metalIc' ? (O.metalIc && !note) : O[k];
+        var note = k === 'glass' && isIos() ? 'всегда включено в теме iOS 27' : '';
+        var on = k === 'glass' ? (O.glass || isIos()) : O[k];
         return '<button class="tog' + (on ? ' on' : '') + '" data-a="fxTog" data-v="' + k + '"' + (note ? ' disabled style="opacity:.55"' : '') + '><div><b>' + title + '</b>' + (note ? '<div class="hint">' + note + '</div>' : '') + '</div><span class="sw"></span></button>';
       };
       var block = '<h3>Эффекты</h3><div class="box fx-set">' +
-        row('grad', 'Живой фон') + row('glass', 'Жидкое стекло') + row('metal', 'Металлический логотип') + row('metalIc', 'Металлические иконки') + row('d3', '3D-чашка в абонементе') +
+        row('grad', 'Живой фон') + row('glass', 'Жидкое стекло') + row('d3', '3D-чашка в абонементе') +
         '<button class="btn wide mt" data-a="fxDemo">Показать 3D-зёрна</button>' +
         '<div class="hint mt">Действует только на этом телефоне.</div></div>';
       var mark = 'Тема сохраняется на этом телефоне и не меняется у остальных.</div>';
@@ -9797,12 +9628,11 @@ void main() {
   document.addEventListener('visibilitychange', function () {
     if (document.hidden) return;
     if (Grad.on && !Grad.raf && !RM) Grad.raf = requestAnimationFrame(Grad.loop);
-    if (Metal.list.length) Metal.kick();
     if (Cup.holder && Cup.holder.isConnected) Cup.kick();
   });
 
-  window.FX = { opts: O, apply: applyAll, _g: Grad, _m: Metal, _c: Cup, burst: function (x, y, big) { Burst.fire(x, y, big); } };
-  function go() { applyAll(); try { if (typeof renderAll === 'function' && typeof S !== 'undefined' && S && S.me && S.db) renderAll(); } catch (e) {} Metal.remount(); if (O.glass || isIos()) Glass.sync(); if (O.d3) Cup.mount(); }
+  window.FX = { opts: O, apply: applyAll, _g: Grad, _c: Cup, burst: function (x, y, big) { Burst.fire(x, y, big); } };
+  function go() { applyAll(); try { if (typeof renderAll === 'function' && typeof S !== 'undefined' && S && S.me && S.db) renderAll(); } catch (e) {} if (O.glass || isIos()) Glass.sync(); if (O.d3) Cup.mount(); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', go); else go();
 })();
 </script>
