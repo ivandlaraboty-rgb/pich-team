@@ -593,6 +593,51 @@ html[data-theme=ios] .stats{background:#FFFFFF}
 html:is([data-theme=ios],[data-theme=iosd]) .demo-tag{color:#fff;background:var(--accent)}
 </style>
 
+<style id="rep-css">
+.hm{display:grid;gap:3px;margin:12px 0 6px;font-size:11px}
+.hm .hl{color:var(--dim);font-weight:800;display:flex;align-items:center;justify-content:center;font-size:11px;min-height:18px}
+.hm .hl.we{color:var(--we)}
+.hm .hl.hr{justify-content:flex-end;padding-right:4px}
+.hm-c{position:relative;height:28px;border:0;padding:0;margin:0;border-radius:7px;background:var(--panel2);overflow:hidden;color:var(--text);font:inherit;font-weight:800;cursor:pointer}
+.hm-c i{position:absolute;inset:0;background:var(--accent);pointer-events:none}
+.hm-c span{position:relative;z-index:1;font-size:11px}
+.hm-c.dark span{color:var(--on-accent)}
+.hm-c.hot{box-shadow:inset 0 0 0 2px var(--red)}
+.hm-c.cold{box-shadow:inset 0 0 0 2px var(--blue)}
+.hm-c.sel{outline:2px solid var(--text);outline-offset:1px}
+.hm-leg{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--muted);margin:4px 0 2px}
+.hm-leg i{display:inline-block;width:12px;height:12px;border-radius:4px;vertical-align:-2px;margin-right:5px;background:var(--panel2)}
+.hm-leg i.hot{box-shadow:inset 0 0 0 2px var(--red)}
+.hm-leg i.cold{box-shadow:inset 0 0 0 2px var(--blue)}
+.msg-prev{background:var(--panel2);border-radius:var(--r-md,14px);padding:12px 14px;font-size:14px;line-height:1.45;white-space:normal;word-break:break-word}
+.rep-h{margin:18px 6px 6px;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.abc-b{display:inline-flex;align-items:center;justify-content:center;min-width:19px;height:19px;padding:0 4px;margin-right:3px;border-radius:6px;font-size:11px;font-weight:900;vertical-align:1px;background:var(--panel2);color:var(--dim)}
+.abc-b.A{background:var(--green-bg);color:var(--green)}
+.abc-b.B{background:var(--gold-bg);color:var(--gold)}
+button.mini{border:0;font:inherit;color:inherit;cursor:pointer}
+button.mini.on,.mx-c.on{box-shadow:inset 0 0 0 2px var(--accent)}
+.mx{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:6px 0}
+.mx-c{border:0;font:inherit;color:var(--text);text-align:left;background:var(--panel2);border-radius:var(--r-md,14px);padding:10px 12px;cursor:pointer}
+.mx-c b{display:block;font-size:14px;margin-bottom:3px}
+.mx-c small{display:block;font-size:12px;color:var(--muted);line-height:1.3}
+.mx-c.star b{color:var(--green)}.mx-c.horse b{color:var(--gold)}.mx-c.puzzle b{color:var(--blue)}.mx-c.dog b{color:var(--red)}
+.up-t{color:var(--green);font-weight:800}.down-t{color:var(--red);font-weight:800}.warn-t{color:var(--red)}
+.rep-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:3px}.rep-tags .badge{font-size:11px}
+.cm-row{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:4px;font-size:13px;color:var(--muted)}
+.cm-c i{font-style:normal;font-weight:800;color:var(--dim);margin-right:4px}
+.cm-c em{font-style:normal;color:var(--red)}
+.rc-row{display:flex;align-items:center;gap:8px}
+.rc-n{all:unset;flex:1;min-width:0;cursor:pointer;display:flex;flex-direction:column}
+.rc-n b{overflow:hidden;text-overflow:ellipsis}
+.rc-n small{font-size:12px}
+.rc-q.in{width:64px;flex:none;text-align:right;padding:6px 8px;min-height:34px;font-weight:800}
+.rc-u{width:24px;flex:none;font-size:13px;color:var(--muted)}
+.rc-c{width:62px;flex:none;text-align:right;font-weight:800;font-size:14px}
+.linkbtn{all:unset;color:var(--accent);font-weight:800;cursor:pointer;text-decoration:underline}
+.rc-own{background:var(--panel2);border-radius:var(--r-md,14px);padding:10px 12px}
+.rc-own summary{cursor:pointer;font-weight:800}
+.rc-own .field{margin:8px 0 0}
+</style>
 <style id="fx-css">
 /* ===== Эффекты (проба): живой фон, жидкое стекло, жидкий металл, 3D ===== */
 #fx-bg{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:0;transition:opacity .9s ease;display:block}
@@ -1308,11 +1353,13 @@ var PICH_CORE = (function () {
         items.forEach(function (x) { x.s = sum > 0 ? x.s * amt / sum : amt * x.q / qs; });
       }
       g.s += k * amt; if (k > 0) g.n++; else g.r++;
+      var mq = 0, iq = 0;
       items.forEach(function (x) {
         var a = g.it[x.name] = g.it[x.name] || [0, 0]; a[0] += k * x.q; a[1] += k * x.s;
         x.mods.forEach(function (m) { g.mo[m] = (g.mo[m] || 0) + k * x.q; });
+        mq += k * x.q * x.mods.length; iq += k * x.q;
       });
-      if (t.hour >= 0) { var hh = g.h[t.hour] = g.h[t.hour] || [0, 0]; if (k > 0) hh[0]++; hh[1] += k * amt; }
+      if (t.hour >= 0) { var hh = g.h[t.hour] = g.h[t.hour] || [0, 0, 0]; if (k > 0) hh[0]++; hh[1] += k * amt; hh[2] += mq; }
       var pays = pickv(raw, ['content.checkClose.payments', 'checkClose.payments', 'payments', 'content.payments']), card = 0, other = 0, cash;
       if (Array.isArray(pays) && pays.length) {
         pays.forEach(function (p) { var v = numv(p && (p.amount != null ? p.amount : p.sum)) || 0, kind = payKind(p); if (kind === 'card') card += v; else if (kind === 'other') other += v; });
@@ -1320,15 +1367,15 @@ var PICH_CORE = (function () {
       } else { other = amt; cash = 0; }
       g.pay.card += k * card; g.pay.cash += k * cash; g.pay.other += k * other;
       var cn = pickv(raw, ['cashier.name', 'cashierName']);
-      if (typeof cn === 'string' && (cn = str(cn, 40))) { var c = g.ca[cn] = g.ca[cn] || [0, 0]; if (k > 0) c[0]++; c[1] += k * amt; }
+      if (typeof cn === 'string' && (cn = str(cn, 40))) { var c = g.ca[cn] = g.ca[cn] || [0, 0, 0, 0]; if (k > 0) c[0]++; c[1] += k * amt; c[2] += mq; c[3] += iq; }
     });
     Object.keys(days).forEach(function (day) {
       Object.keys(days[day]).forEach(function (key) {
         var g = days[day][key];
         g.s = r2(g.s);
         Object.keys(g.it).forEach(function (n) { g.it[n] = [r3(g.it[n][0]), r2(g.it[n][1])]; });
-        Object.keys(g.h).forEach(function (n) { g.h[n][1] = r2(g.h[n][1]); });
-        Object.keys(g.ca).forEach(function (n) { g.ca[n][1] = r2(g.ca[n][1]); });
+        Object.keys(g.h).forEach(function (n) { g.h[n][1] = r2(g.h[n][1]); if (g.h[n].length > 2) g.h[n][2] = r3(g.h[n][2]); });
+        Object.keys(g.ca).forEach(function (n) { g.ca[n][1] = r2(g.ca[n][1]); if (g.ca[n].length > 2) { g.ca[n][2] = r3(g.ca[n][2]); g.ca[n][3] = r3(g.ca[n][3]); } });
         Object.keys(g.mo).forEach(function (n) { g.mo[n] = r3(g.mo[n]); });
         g.pay = { card: r2(g.pay.card), cash: r2(g.pay.cash), other: r2(g.pay.other) };
       });
@@ -1338,31 +1385,169 @@ var PICH_CORE = (function () {
   // Свести дни в отчёт. list: [{ day, agg }] — уже только нужной точки.
   function salesReport(list, from, to) {
     var rep = { from: from || '', to: to || '', days: 0, s: 0, n: 0, r: 0, avg: 0, pay: { card: 0, cash: 0, other: 0 }, items: [], hours: [], wd: [], cashiers: [], mods: [], byDay: [] };
-    var it = {}, h = {}, ca = {}, mo = {}, bd = {};
+    var it = {}, h = {}, ca = {}, mo = {}, bd = {}, whs = {}, dh = {};
     (list || []).forEach(function (x) {
       var g = x && x.agg; if (!g || !isDate(x.day)) return;
+      var wrow = whs[dayIndex(x.day)] = whs[dayIndex(x.day)] || {};
+      Object.keys(g.h || {}).forEach(function (n) { var a = wrow[n] = wrow[n] || [0, 0]; a[0] += g.h[n][0]; a[1] += g.h[n][1]; });
       rep.s += g.s || 0; rep.n += g.n || 0; rep.r += g.r || 0;
       var b = bd[x.day] = bd[x.day] || [0, 0]; b[0] += g.n || 0; b[1] += g.s || 0;
       ['card', 'cash', 'other'].forEach(function (k) { rep.pay[k] += (g.pay && g.pay[k]) || 0; });
       Object.keys(g.it || {}).forEach(function (n) { var a = it[n] = it[n] || [0, 0]; a[0] += g.it[n][0]; a[1] += g.it[n][1]; });
       Object.keys(g.h || {}).forEach(function (n) { var a = h[n] = h[n] || [0, 0]; a[0] += g.h[n][0]; a[1] += g.h[n][1]; });
-      Object.keys(g.ca || {}).forEach(function (n) { var a = ca[n] = ca[n] || [0, 0]; a[0] += g.ca[n][0]; a[1] += g.ca[n][1]; });
+      Object.keys(g.ca || {}).forEach(function (n) { var a = ca[n] = ca[n] || [0, 0, 0, 0, 0], e = g.ca[n]; a[0] += e[0]; a[1] += e[1]; if (e.length > 2) { a[2] += e[2]; a[3] += e[3]; } else a[4] = 1; });
+      var dd = dh[x.day] = dh[x.day] || {};
+      Object.keys(g.h || {}).forEach(function (n) { var e = g.h[n], a = dd[n] = dd[n] || [0, 0, 0, 0]; a[0] += e[0]; a[1] += e[1]; if (e.length > 2) a[2] += e[2]; else a[3] = 1; });
       Object.keys(g.mo || {}).forEach(function (n) { mo[n] = (mo[n] || 0) + g.mo[n]; });
     });
     rep.s = r2(rep.s); rep.avg = rep.n ? r2(rep.s / rep.n) : 0;
     rep.pay = { card: r2(rep.pay.card), cash: r2(rep.pay.cash), other: r2(rep.pay.other) };
     rep.items = Object.keys(it).map(function (n) { return { name: n, q: r3(it[n][0]), s: r2(it[n][1]) }; }).filter(function (x) { return x.q > 0.0005 || x.s > 0.005; }).sort(function (a, b) { return b.s - a.s || b.q - a.q; });
     rep.hours = Object.keys(h).map(function (n) { return { h: +n, n: h[n][0], s: r2(h[n][1]) }; }).filter(function (x) { return x.h >= 0 && x.h < 24; }).sort(function (a, b) { return a.h - b.h; });
-    rep.cashiers = Object.keys(ca).map(function (n) { return { name: n, n: ca[n][0], s: r2(ca[n][1]) }; }).sort(function (a, b) { return b.s - a.s; });
+    rep.cashiers = Object.keys(ca).map(function (n) { var a = ca[n]; return { name: n, n: a[0], s: r2(a[1]), m: a[4] ? null : r3(a[2]), q: a[4] ? null : r3(a[3]) }; }).sort(function (a, b) { return b.s - a.s; });
+    rep.dh = {};
+    Object.keys(dh).sort().forEach(function (d) {
+      rep.dh[d] = Object.keys(dh[d]).map(function (n) { var a = dh[d][n]; return [+n, a[0], r2(a[1]), a[3] ? null : r3(a[2])]; })
+        .filter(function (e) { return e[0] >= 0 && e[0] < 24; }).sort(function (a, b) { return a[0] - b[0]; });
+    });
     rep.mods = Object.keys(mo).map(function (n) { return { name: n, q: r3(mo[n]) }; }).filter(function (x) { return x.q > 0.0005; }).sort(function (a, b) { return b.q - a.q; });
     rep.byDay = Object.keys(bd).sort().map(function (d) { return { day: d, n: bd[d][0], s: r2(bd[d][1]) }; });
     rep.days = rep.byDay.length;
     var w = [0, 1, 2, 3, 4, 5, 6].map(function (i) { return { wd: i, s: 0, n: 0, days: 0 }; });
     rep.byDay.forEach(function (x) { var o = w[dayIndex(x.day)]; o.s += x.s; o.n += x.n; o.days++; });
     rep.wd = w.map(function (o) { return { wd: o.wd, days: o.days, s: o.days ? r2(o.s / o.days) : 0, n: o.days ? r2(o.n / o.days) : 0 }; });
+    // день недели × час: сколько в среднем чеков и выручки в этот час такого дня
+    rep.wh = w.map(function (o) {
+      var row = whs[o.wd] || {};
+      return Object.keys(row).map(function (n) { return { h: +n, n: o.days ? r2(row[n][0] / o.days) : 0, s: o.days ? r2(row[n][1] / o.days) : 0 }; })
+        .filter(function (x) { return x.h >= 0 && x.h < 24; }).sort(function (a, b) { return a.h - b.h; });
+    });
     return rep;
   }
-  // Записать итоги кассы в выручку. День, который админ исправил вручную (fixed), не трогаем.
+
+  // ---------- отчёты: план выручки, итоги месяца, итоги дня ----------
+  // План выручки на месяц. Не задан на этот месяц — действует последний план из прошлых месяцев.
+  function planFor(db, month) {
+    var p = (db.settings && db.settings.plan) || {}, best = '';
+    if (p[month] != null) return p[month];
+    Object.keys(p).forEach(function (m) { if (/^\d{4}-\d{2}$/.test(m) && m < month && m > best) best = m; });
+    return best ? p[best] : 0;
+  }
+  function monthLen(month) { var p = month.split('-'); return new Date(Date.UTC(+p[0], +p[1], 0)).getUTCDate(); }
+  // Средняя выручка по дням недели за 8 недель до даты — прогноз учитывает выходные и выходные дни кофейни.
+  function revByWeekday(db, today, placeId) {
+    var from = addDays(today, -56), sum = [0, 0, 0, 0, 0, 0, 0], days = [{}, {}, {}, {}, {}, {}, {}], all = {};
+    (db.revenue || []).forEach(function (r) {
+      if (r.date < from || r.date >= today || (placeId && r.placeId !== placeId)) return;
+      var w = dayIndex(r.date); sum[w] += r.amount || 0; days[w][r.date] = 1; all[r.date] = 1;
+    });
+    var hist = Object.keys(all).length;
+    return { hist: hist, avg: sum.map(function (s, w) { var n = Object.keys(days[w]).length; return n ? s / n : null; }) };
+  }
+  // Прогноз выручки на конец месяца: что уже есть + средняя выручка этих дней недели на оставшиеся дни.
+  function revForecast(db, month, today, placeId) {
+    var have = 0, byDay = {};
+    (db.revenue || []).forEach(function (r) { if (monthOf(r.date) === month && (!placeId || r.placeId === placeId)) { have += r.amount || 0; byDay[r.date] = (byDay[r.date] || 0) + (r.amount || 0); } });
+    if (month < monthOf(today)) return Math.round(have);
+    var st = revByWeekday(db, today, placeId), known = st.avg.filter(function (x) { return x != null; });
+    var flat = known.length ? known.reduce(function (a, b) { return a + b; }, 0) / known.length : 0, add = 0, n = monthLen(month);
+    for (var d = 1; d <= n; d++) {
+      var date = month + '-' + (d < 10 ? '0' : '') + d;
+      if (date < today) continue;
+      var a = st.avg[dayIndex(date)];
+      if (a == null) a = st.hist >= 14 ? 0 : flat;          // в этот день недели два месяца не было выручки — похоже, выходной
+      add += Math.max(0, a - (byDay[date] || 0));            // сегодня часть выручки уже есть — добавляем только остаток
+    }
+    return Math.round(have + add);
+  }
+  // Итоги месяца: выручка + прочие поступления − зарплата − расходы.
+  // Зарплата — по графику и часам (начислено), поэтому её выдачу из ДДС второй раз не вычитаем. «Внесение в кассу» — не доход.
+  function monthSum(db, month, today) {
+    var o = { month: month, rev: 0, days: 0, plan: planFor(db, month), inc: 0, out: 0, byCat: {}, salaryCash: 0, byPlace: {},
+      pay: { total: 0, forecast: 0, payout: 0, hours: 0 }, cur: month === monthOf(today) }, seen = {};
+    (db.revenue || []).forEach(function (r) {
+      if (monthOf(r.date) !== month) return;
+      o.rev += r.amount || 0; seen[r.date] = 1; o.byPlace[r.placeId] = (o.byPlace[r.placeId] || 0) + (r.amount || 0);
+    });
+    o.days = Object.keys(seen).length;
+    (db.cash || []).forEach(function (c) {
+      if (monthOf(c.date) !== month) return;
+      if (c.kind === 'in') { if (c.cat !== 'Внесение в кассу') o.inc += c.amount; return; }
+      if (c.cat === 'Зарплата') { o.salaryCash += c.amount; return; }
+      o.out += c.amount; o.byCat[c.cat] = (o.byCat[c.cat] || 0) + c.amount;
+    });
+    db.staff.forEach(function (st) {
+      var x = salary(db, st.id, month, today); if (!x.shifts.length && !x.money.length) return;
+      o.pay.total += x.total; o.pay.forecast += x.forecast; o.pay.payout += x.payout; o.pay.hours += x.hoursDone;
+    });
+    o.pay.hours = round2(o.pay.hours);
+    o.forecast = o.cur ? revForecast(db, month, today) : Math.round(o.rev);
+    o.result = Math.round(o.rev + o.inc - o.pay.total - o.out);
+    o.fotPct = o.rev > 0 ? Math.round(o.pay.total / o.rev * 1000) / 10 : 0;
+    o.cats = Object.keys(o.byCat).map(function (k) { return { cat: k, s: o.byCat[k] }; }).sort(function (a, b) { return b.s - a.s; });
+    return o;
+  }
+  // Итоги дня: то, что вечером уходит владельцу. Считается одинаково на сервере и в приложении (превью).
+  function dayReport(db, date, nowHM) {
+    var r = { date: date, rev: 0, checks: 0, noChecks: false, prev: addDays(date, -7), prevRev: 0, month: monthOf(date), mtd: 0, team: [], review: 0, missing: 0 };
+    (db.revenue || []).forEach(function (x) {
+      if (x.date === date) { r.rev += x.amount || 0; if (x.checks) r.checks += x.checks; else r.noChecks = true; }
+      if (x.date === r.prev) r.prevRev += x.amount || 0;
+      if (monthOf(x.date) === r.month && x.date <= date) r.mtd += x.amount || 0;
+    });
+    r.plan = planFor(db, r.month); r.forecast = revForecast(db, r.month, date);
+    var nm = {}; db.staff.forEach(function (st) { nm[st.id] = st.name; });
+    (db.shifts || []).forEach(function (x) {
+      if (x.check) { r.review++; return; }
+      if (x.date === date) r.team.push({ name: nm[x.staffId] || '?', from: x.from, to: x.to, hours: x.hours, ended: !nowHM || toMin(nowHM) >= toMin(x.to), staffId: x.staffId });
+      else if (x.date < date && monthOf(x.date) === r.month && x.hours == null) r.missing++;
+    });
+    r.team.sort(function (a, b) { return a.from < b.from ? -1 : 1; });
+    var hh = db.settings.haccp || {};
+    if (hh.on !== false && hh.checks !== false && (db.cps || []).some(function (cp) { return !cp.archived; })) {
+      var ch = cpChecks(db, date, date, nowHM);
+      r.cp = { total: ch.length, done: ch.filter(function (c) { return c.e; }).length, out: ch.filter(function (c) { return c.out; }).length, sofar: ch.filter(function (c) { return c.e || c.due; }).length,
+        missed: ch.filter(function (c) { return c.due; }).map(function (c) { return c.cp.name + ' ' + c.slot; }) };
+    }
+    if (hh.on !== false && hh.hygiene !== false) {
+      var seenS = {}; r.noHyg = [];
+      r.team.forEach(function (t) { if (seenS[t.staffId]) return; seenS[t.staffId] = 1; if (!hygOf(db, t.staffId, date)) r.noHyg.push(t.name); });
+    }
+    r.choresDone = []; r.choresLate = [];
+    (db.chores || []).forEach(function (c) { var x = choreState(db, c, date); if (x.doneToday) r.choresDone.push(c.name); else if (x.due) r.choresLate.push(c.name + (x.late ? ' (' + x.late + ' ' + plw(x.late, ['день', 'дня', 'дней']) + ')' : '')); });
+    return r;
+  }
+  function plw(n, f) { n = Math.abs(n) % 100; var a = n % 10; return n > 10 && n < 20 ? f[2] : a > 1 && a < 5 ? f[1] : a === 1 ? f[0] : f[2]; }
+  function rub(n) { return (n < 0 ? '−' : '') + String(Math.abs(Math.round(n))).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' ₽'; }
+  function hrsTxt(h) { return String(Math.round((h || 0) * 100) / 100).replace('.', ','); }
+  function dayReportText(db, r) {
+    var WD = ['понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота', 'воскресенье'];
+    var MG = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+    var p = r.date.split('-'), L = [];
+    L.push('☕ Итоги дня — ' + WD[dayIndex(r.date)] + ', ' + (+p[2]) + ' ' + MG[+p[1] - 1] + (db.settings.cafeName ? ' · ' + db.settings.cafeName : ''));
+    if (r.rev > 0) {
+      L.push('');
+      L.push('Выручка: ' + rub(r.rev) + (r.checks && !r.noChecks ? ' · ' + r.checks + ' ' + plw(r.checks, ['чек', 'чека', 'чеков']) + ' · средний чек ' + rub(r.rev / r.checks) : ''));
+      if (r.prevRev > 0) { var d = Math.round((r.rev - r.prevRev) / r.prevRev * 100); L.push('Неделю назад: ' + rub(r.prevRev) + ' (' + (d > 0 ? '+' : d < 0 ? '−' : '') + Math.abs(d) + '%)'); }
+    } else { L.push(''); L.push('Выручка за день не внесена.'); }
+    if (r.plan > 0) L.push('План месяца: ' + rub(r.mtd) + ' из ' + rub(r.plan) + ' (' + Math.round(r.mtd / r.plan * 100) + '%), прогноз ' + rub(r.forecast));
+    else if (r.mtd > 0) L.push('С начала месяца: ' + rub(r.mtd) + ', прогноз на месяц ' + rub(r.forecast));
+    L.push('');
+    if (r.team.length) L.push('На смене: ' + r.team.map(function (t) { return t.name + ' ' + t.from + '–' + t.to + (t.hours != null ? ' (' + hrsTxt(t.hours) + ' ч)' : t.ended ? ' — часы не вписаны' : ''); }).join('; '));
+    else L.push('Смен не было.');
+    if (r.cp && !r.cp.sofar) L.push('ХАССП: ' + r.cp.total + ' ' + plw(r.cp.total, ['проверка', 'проверки', 'проверок']) + ' впереди');
+    else if (r.cp) L.push('ХАССП: проверки ' + r.cp.done + ' из ' + (r.cp.sofar < r.cp.total ? r.cp.sofar + ' к этому часу, впереди ещё ' + (r.cp.total - r.cp.sofar) : r.cp.total) + (r.cp.out ? ', вне нормы: ' + r.cp.out : r.cp.done ? ', всё в норме' : '') + (r.cp.missed.length ? '. Не записаны: ' + r.cp.missed.slice(0, 3).join(', ') + (r.cp.missed.length > 3 ? ' и ещё ' + (r.cp.missed.length - 3) : '') : ''));
+    if (r.noHyg && r.noHyg.length) L.push('Допуск к смене не отмечен: ' + r.noHyg.join(', '));
+    if (r.choresDone.length) L.push('Сделано: ' + r.choresDone.join(', '));
+    if (r.choresLate.length) L.push('Просрочено: ' + r.choresLate.join(', '));
+    var warn = [];
+    if (r.review) warn.push(r.review + ' ' + plw(r.review, ['смена ждёт', 'смены ждут', 'смен ждут']) + ' проверки');
+    if (r.missing) warn.push(r.missing + ' ' + plw(r.missing, ['смена', 'смены', 'смен']) + ' за месяц без часов');
+    if (warn.length) { L.push(''); L.push('⚠️ ' + warn.join(', ')); }
+    return L.join('\n');
+  }
+  // Записать итоги кассы в выручку.
+  // День, который админ исправил вручную (fixed), не трогаем.
   function aqsiApply(db, tot, now) {
     var a = db.settings.aqsi = db.settings.aqsi || {}, map = a.map || {}, one = (db.places || []).length === 1 ? db.places[0].id : null;
     var acc = {}, unmapped = {}, written = 0, kept = 0;
@@ -1748,6 +1933,418 @@ var PICH_CORE = (function () {
     return res;
   }
 
+
+  // ---------- себестоимость по ТТК ----------
+  // Ингредиенты берутся прямо из текста ТТК: «2х Эспрессо + 260 молоко + 20 сироп малина».
+  // Числа без единиц — граммы или миллилитры, «2х» — порции. Цены — в db.costs.ing (видит только админ).
+  var NUM_WORDS = { 'один': 1, 'одна': 1, 'одну': 1, 'два': 2, 'две': 2, 'три': 3, 'четыре': 4, 'пять': 5, 'пол': 0.5, 'половина': 0.5, 'половинка': 0.5 };
+  function ingKey(name) { return String(name || '').toLowerCase().replace(/ё/g, 'е').replace(/\([^)]*\)/g, ' ').replace(/[^a-zа-я0-9%]+/g, ' ').trim(); }
+  function ingName(name) { var n = String(name || '').replace(/\([^)]*\)/g, ' ').replace(/\s+/g, ' ').trim(); return n.charAt(0).toUpperCase() + n.slice(1); }
+  function partOf(q, unit, name) {
+    var u = String(unit || '').toLowerCase(), key = ingKey(name);
+    if (!key) return null;
+    u = /^(х|x|шт|ломт|кус)/.test(u) ? 'шт' : /^мл/.test(u) ? 'мл' : /^г/.test(u) ? 'г' : '';
+    return { q: q, u: u, name: ingName(name), key: key };
+  }
+  function recipeParts(text) {
+    return String(text || '').split(/\s*\+\s*/).map(function (p) {
+      p = p.trim(); if (!p) return null;
+      var m = p.match(/^(\d+(?:[.,]\d+)?)\s*(х|x|гр\.?|г\.?|мл|шт\.?)?\s+(.+)$/i);
+      if (m) return partOf(parseFloat(m[1].replace(',', '.')), m[2], m[3]);
+      m = p.match(/^(.+?)\s+(\d+(?:[.,]\d+)?)\s*(гр\.?|г\.?|мл|шт\.?)?$/i);
+      if (m) return partOf(parseFloat(m[2].replace(',', '.')), m[3], m[1]);
+      return partOf(null, '', p);
+    }).filter(Boolean);
+  }
+  // Состав без размеров (бутеры): «Колбаса — 50 гр (3 ломтика)», «Хлеб — два ломтика».
+  function compParts(text) {
+    return String(text || '').split('\n').map(function (l) {
+      var p = l.split(/\s+[—–-]\s+/); if (p.length < 2) return null;
+      var rest = p.slice(1).join(' ').toLowerCase().replace(/\([^)]*\)/g, ' '), q = null, u = '';
+      var m = rest.match(/(\d+(?:[.,]\d+)?)\s*(гр|г|мл|шт|ломт\S*|кус\S*)?/);
+      if (m) { q = parseFloat(m[1].replace(',', '.')); u = m[2] || 'шт'; }
+      else { var w = rest.match(/[а-яё]+/g) || []; for (var i = 0; i < w.length; i++) if (NUM_WORDS[w[i]]) { q = NUM_WORDS[w[i]]; u = 'шт'; break; } }
+      return partOf(q, u, p[0]);
+    }).filter(Boolean);
+  }
+  function ttkParts(t, size) { return size ? recipeParts(t.sizes && t.sizes['s' + size]) : compParts(t.composition); }
+  function costsOf(db) { return db.costs || {}; }
+  // Цена за кг или литр — количество в граммах или мл; цена за штуку — количество в штуках (порциях).
+  // «Сливок» и «сливки», «сироп малина» и «сироп» — одна цена: ингредиент может ссылаться на другой (same).
+  function hasPrice(e) { return !!e && typeof e.price === 'number' && e.price >= 0; }
+  function ingPrice(db, key) {
+    var map = costsOf(db).ing || {}, ing = map[key];
+    if (ing && ing.same) { var to = map[ing.same]; return to && !to.same && hasPrice(to) ? { per: to.per, price: to.price, same: ing.same, name: to.name } : null; }
+    return hasPrice(ing) ? ing : null;
+  }
+  function partCost(db, p) {
+    if (p.q == null) return 0;                       // «посыпка» без количества — не считаем
+    var ing = ingPrice(db, p.key);
+    if (!ing) return null;
+    if (ing.per === 'шт') return p.u === 'г' || p.u === 'мл' ? null : p.q * ing.price;
+    if (p.u === 'шт') return null;
+    return p.q / 1000 * ing.price;
+  }
+  function catOf(db) { return costsOf(db).ing || {}; }
+  function hasSizes(t) { return !!(t && t.sizes && (t.sizes.s250 || t.sizes.s350 || t.sizes.s450)); }
+  // Ингредиенты, добавленные к напитку вручную (t.add): количество — в граммах/мл для цены за кг/л, в штуках для цены за шт.
+  function addParts(db, t, size) {
+    var cat = catOf(db);
+    return ((t.add && t.add['s' + (size || '0')]) || []).map(function (x) {
+      var e = cat[x.k] || {}, pr = ingPrice(db, x.k) || e;
+      return { q: x.q, u: pr.per === 'шт' ? 'шт' : pr.per === 'л' ? 'мл' : pr.per === 'кг' ? 'г' : '', key: x.k, name: e.name || ingName(x.k), added: true };
+    });
+  }
+  // Наборы упаковки (costs.packs): что уходит с порцией — к любому размеру (all) и к каждому размеру отдельно.
+  function packOf(db, id) { var l = costsOf(db).packs || []; for (var i = 0; i < l.length; i++) if (l[i].id === id) return l[i]; return null; }
+  function packFor(db, t) {
+    var id = t && t.pack;
+    if (id === '-') return null;
+    if (id && packOf(db, id)) return packOf(db, id);
+    return hasSizes(t) ? packOf(db, costsOf(db).packDef) : null;
+  }
+  function packParts(db, pk, size) {
+    if (!pk) return [];
+    var cat = catOf(db);
+    return (pk.all || []).concat(size ? pk['s' + size] || [] : []).map(function (x) {
+      var p = { q: x.q, u: 'шт', key: x.k, name: ingShown(db, x.k) || ingName(x.k), pack: true };
+      p.cost = partCost(db, p); if (p.cost != null) p.cost = r2(p.cost);
+      return p;
+    });
+  }
+  function unitFor(db, key) { var pr = ingPrice(db, key) || catOf(db)[key] || {}; return pr.per === 'шт' ? 'шт' : pr.per === 'л' ? 'мл' : pr.per === 'кг' ? 'г' : ''; }
+  function ingShown(db, key) { var cat = catOf(db), e = cat[key]; if (e && e.same && cat[e.same]) e = cat[e.same]; return e && e.name ? e.name : ''; }
+  // Состав порции: свой из конструктора (t.rc[размер]) или из текста ТТК + добавленное (t.add).
+  // u0 — единица, как записана (пусто — граммы или мл по цене), u — для показа.
+  function recipeOf(db, t, size) {
+    var key = 's' + (size || '0'), rc = t.rc && t.rc[key];
+    var rows = rc ? rc.map(function (x) { return { q: x.q == null ? null : x.q, u: x.u || '', key: x.k, name: '', src: 'rc' }; })
+      : ttkParts(t, size).map(function (p) { p.src = 'ttk'; return p; }).concat(addParts(db, t, size).map(function (p) { p.src = 'add'; return p; }));
+    rows.forEach(function (p) { p.u0 = p.src === 'add' ? '' : p.u; p.name = ingShown(db, p.key) || p.name || ingName(p.key); if (!p.u) p.u = unitFor(db, p.key); });
+    return rows;
+  }
+  // Где используется ингредиент или упаковка (вместе с объединёнными с ним названиями).
+  function ingUses(db, key) {
+    var cat = catOf(db), res = function (k) { var e = cat[k]; return e && e.same && cat[e.same] ? e.same : k; }, out = [];
+    (db.ttk || []).forEach(function (t) {
+      ['250', '350', '450', ''].forEach(function (size) {
+        if (size ? !(t.sizes && t.sizes['s' + size]) : hasSizes(t)) return;
+        recipeOf(db, t, size).forEach(function (p) { if (res(p.key) === key) out.push({ id: t.id, name: t.name, size: size, q: p.q, u: p.u }); });
+      });
+    });
+    (costsOf(db).packs || []).forEach(function (pk) { ['all', 's250', 's350', 's450'].forEach(function (k) { (pk[k] || []).forEach(function (x) { if (res(x.k) === key) out.push({ pack: pk.id, name: pk.name, size: k === 'all' ? '' : k.slice(1), q: x.q, u: 'шт' }); }); }); });
+    return out;
+  }
+  // Себестоимость порции = продукты (ТТК + добавленное) + упаковка из набора.
+  // Своя себестоимость продуктов (ttk.cost, например из таблицы владельца) главнее расчёта — расчёт остаётся в calc для сравнения.
+  function ttkCost(db, t, size) {
+    var parts = recipeOf(db, t, size), prod = 0, missing = [];
+    parts.forEach(function (p) { p.added = p.src === 'add'; p.cost = partCost(db, p); if (p.q == null) p.noQty = true; if (p.cost == null) missing.push(p.key); else { p.cost = r2(p.cost); prod += p.cost; } });
+    var pk = packFor(db, t), pp = packParts(db, pk, size), pack = 0, pmiss = [];
+    pp.forEach(function (p) { if (p.cost == null) pmiss.push(p.key); else pack += p.cost; });
+    var key = 's' + (size || '0'), price = t.price ? t.price[key] : null, own = t.cost ? t.cost[key] : null, ok = parts.length > 0 && !missing.length;
+    var res = { parts: parts, packParts: pp, packId: pk ? pk.id : '', packName: pk ? pk.name : '', prod: r2(prod), pack: r2(pack), missing: missing.concat(pmiss), price: price > 0 ? price : null };
+    if (own != null && own >= 0) { res.calc = { prod: r2(prod), ok: ok, missing: missing }; res.prod = own; res.own = true; ok = true; res.missing = pmiss; }
+    res.ok = ok && !pmiss.length; res.cost = r2(res.prod + res.pack);
+    return res;
+  }
+  // Все ингредиенты и упаковка: из составов напитков (свой состав или ТТК + добавленное), из наборов упаковки и заведённые вручную.
+  // Объединённые названия (same) отдельно не показываются — они в aliases у основного. kind: 'ing' | 'pack'.
+  function ingList(db, kind) {
+    var map = {}, cat = catOf(db), res = function (k) { var e = cat[k]; return e && e.same && cat[e.same] ? e.same : k; };
+    var use = function (key0, name, u, sample) {
+      var key = res(key0), o = map[key] = map[key] || { key: key, name: name, n: 0, units: {}, sample: '', aliases: [] };
+      if (key !== key0 && o.aliases.indexOf(key0) < 0) o.aliases.push(key0);
+      o.n++; if (u != null) o.units[u || 'г'] = (o.units[u || 'г'] || 0) + 1;
+      if (!o.sample && sample) o.sample = sample;
+    };
+    (db.ttk || []).forEach(function (t) {
+      ['250', '350', '450', ''].forEach(function (size) {
+        if (size ? !(t.sizes && t.sizes['s' + size]) : hasSizes(t)) return;
+        recipeOf(db, t, size).forEach(function (p) {
+          if (p.q == null && p.src === 'ttk') return;
+          use(p.key, p.name, p.u0, (p.q != null ? String(p.q).replace('.', ',') + ' ' + p.u + ' — ' : '') + t.name + (size ? ' ' + size : ''));
+        });
+      });
+    });
+    (costsOf(db).packs || []).forEach(function (pk) { ['all', 's250', 's350', 's450'].forEach(function (k) { (pk[k] || []).forEach(function (x) { use(x.k, ingShown(db, x.k) || ingName(x.k), 'шт', 'в наборе «' + pk.name + '»'); }); }); });
+    Object.keys(cat).forEach(function (k) { if (!map[k] && !cat[k].same && (cat[k].man || cat[k].kind === 'pack')) map[k] = { key: k, name: cat[k].name || ingName(k), n: 0, units: {}, sample: '', aliases: [] }; });
+    return Object.keys(map).map(function (k) {
+      var o = map[k], c = cat[k], pr = ingPrice(db, k), units = Object.keys(o.units).sort(function (a, b) { return o.units[b] - o.units[a]; });
+      o.u = units[0] || (c && c.per === 'шт' ? 'шт' : ''); o.price = pr ? pr.price : null; o.per = pr ? pr.per : (c && c.per) || '';
+      o.kind = c && c.kind === 'pack' ? 'pack' : 'ing'; o.man = !!(c && c.man);
+      if (c && c.name) o.name = c.name;
+      if (c && c.same) { o.same = c.same; o.sameName = pr ? pr.name || ingName(c.same) : ingName(c.same); }
+      return o;
+    }).filter(function (o) { return !kind || o.kind === kind; })
+      .sort(function (a, b) { return (a.price == null ? 0 : 1) - (b.price == null ? 0 : 1) || b.n - a.n || (a.name < b.name ? -1 : 1); });
+  }
+  function ingSimilar(db, key) {
+    var map = costsOf(db).ing || {}, words = key.split(' ').filter(function (w) { return w.length >= 4; });
+    return Object.keys(map).filter(function (k) { return k !== key && !map[k].same && map[k].kind !== 'pack' && hasPrice(map[k]); }).map(function (k) {
+      var score = 0, kw = k.split(' ');
+      words.forEach(function (w) { kw.forEach(function (x) { if (x === w) score += 2; else if (x.length >= 4 && x.slice(0, 4) === w.slice(0, 4)) score += 1; }); });
+      return { key: k, name: map[k].name || ingName(k), per: map[k].per, price: map[k].price, score: score };
+    }).filter(function (x) { return x.score > 0; }).sort(function (a, b) { return b.score - a.score || a.key.length - b.key.length; }).slice(0, 3);
+  }
+  // Позиция кассы → напиток из ТТК и размер. Ручная привязка — в db.costs.map.
+  var SIZE_LETTER = { s: '250', m: '350', l: '450', 'м': '250', 'с': '350', 'б': '450' };
+  function itemMatch(db, name) {
+    var m = (costsOf(db).map || {})[name];
+    if (m) {
+      if (m.x) return { x: true, manual: true };
+      if (m.c != null) return { c: m.c, p: m.p || '', manual: true };
+      var tm = byId(db.ttk || [], m.t);
+      if (tm) { var ms = ['250', '350', '450'].filter(function (k) { return tm.sizes && tm.sizes['s' + k]; }); return { t: tm, size: m.s && ms.indexOf(m.s) >= 0 ? m.s : ms[0] || '', manual: true }; }
+    }
+    var n = ingKey(name), want = 0, mm = n.match(/(?:^| )([1-6]\d0)(?: ?мл)?(?= |$)/);
+    if (mm) { want = +mm[1]; n = (n.slice(0, mm.index) + ' ' + n.slice(mm.index + mm[0].length)).replace(/ +/g, ' ').trim(); }
+    else { var sm = n.match(/ (s|m|l|мал\S*|сред\S*|бол\S*)$/); if (sm) { want = +SIZE_LETTER[sm[1].charAt(0)] || 0; n = n.slice(0, sm.index).trim(); } }
+    var best = null, bl = 0;
+    (db.ttk || []).forEach(function (t) {
+      var k = ingKey(t.name); if (!k) return;
+      if (k === n) { if (bl < 1e9) { best = t; bl = 1e9; } }
+      else if (bl < 1e9 && n.indexOf(k + ' ') === 0 && k.length > bl) { best = t; bl = k.length; }
+    });
+    if (!best) return null;
+    var sizes = ['250', '350', '450'].filter(function (k) { return best.sizes && best.sizes['s' + k]; }), size = '';
+    if (sizes.length) size = want ? sizes.reduce(function (a, b) { return Math.abs(+b - want) < Math.abs(+a - want) ? b : a; }) : sizes[0];
+    return { t: best, size: size, guess: sizes.length > 1 && (!want || +size !== want) };
+  }
+  function unitCost(db, name) {
+    var m = itemMatch(db, name);
+    if (!m) return { none: true };
+    if (m.x) return { x: true, manual: true };
+    if (m.c != null) {
+      var pk = m.p ? packOf(db, m.p) : null, pp = packParts(db, pk, ''), pc = 0, pm = [];
+      pp.forEach(function (p) { if (p.cost == null) pm.push(p.key); else pc += p.cost; });
+      return { cost: pm.length ? null : r2(m.c + pc), prod: m.c, pack: r2(pc), packName: pk ? pk.name : '', manual: true, missing: pm, parts: 1 };
+    }
+    var tc = ttkCost(db, m.t, m.size);
+    return { t: m.t.id, tname: m.t.name, size: m.size, guess: !!m.guess, manual: !!m.manual, cost: tc.ok ? tc.cost : null, prod: tc.prod, pack: tc.pack, packName: tc.packName, missing: tc.missing, parts: tc.parts.length + (tc.own ? 1 : 0) };
+  }
+  // Себестоимость продаж за период. items — позиции из salesReport.
+  function costReport(db, items) {
+    var rep = { rev: 0, cost: 0, gp: 0, fc: 0, covRev: 0, cov: 0, rows: [], none: [], miss: {}, skip: 0 };
+    (items || []).forEach(function (x) {
+      if (!(x.q > 0)) return;
+      var u = unitCost(db, x.name), row = { name: x.name, q: x.q, s: x.s, avg: r2(x.s / x.q), u: u, cost: null, gp: null, fc: null };
+      if (u.x) { rep.skip += x.s; return; }
+      rep.rev += x.s;
+      if (u.none) { rep.none.push(row); return; }
+      if (u.cost == null) { (u.missing || []).forEach(function (k) { rep.miss[k] = (rep.miss[k] || 0) + x.s; }); rep.rows.push(row); return; }
+      row.unit = r2(u.cost); row.cost = r2(u.cost * x.q); row.gp = r2(x.s - row.cost); row.fc = x.s > 0 ? Math.round(row.cost / x.s * 1000) / 10 : 0;
+      rep.covRev += x.s; rep.cost += row.cost; rep.rows.push(row);
+    });
+    rep.rev = r2(rep.rev); rep.cost = r2(rep.cost); rep.covRev = r2(rep.covRev); rep.skip = r2(rep.skip);
+    rep.gp = r2(rep.covRev - rep.cost); rep.fc = rep.covRev ? Math.round(rep.cost / rep.covRev * 1000) / 10 : 0; rep.cov = rep.rev ? Math.round(rep.covRev / rep.rev * 100) : 0;
+    rep.rows.sort(function (a, b) { return (b.gp == null ? -1e12 : b.gp) - (a.gp == null ? -1e12 : a.gp) || b.s - a.s; });
+    rep.none.sort(function (a, b) { return b.s - a.s; });
+    return rep;
+  }
+
+  // Разовая загрузка себестоимости из таблицы владельца: цены ингредиентов и упаковки, наборы упаковки, себестоимость продуктов и цены напитков.
+  // То, что уже введено в приложении, не трогаем — кроме значений прежней загрузки (d.was): их заменяем новыми.
+  // Напитки ищем по названию без «ё/э» и знаков.
+  function costsImport(db, data) {
+    var c = db.costs = db.costs || {}, res = { ing: 0, cost: 0, price: 0, packs: 0, miss: [] }, ing = data.ing || {};
+    c.ing = c.ing || {};
+    Object.keys(ing).forEach(function (k) { var key = ingKey(k); if (key && !c.ing[key] && !ing[k].same) { c.ing[key] = clone(ing[k]); res.ing++; } });
+    Object.keys(ing).forEach(function (k) { var key = ingKey(k), to = ingKey(ing[k].same || ''); if (key && to && !c.ing[key] && c.ing[to] && !c.ing[to].same) { c.ing[key] = { name: ing[k].name || ingName(key), same: to }; res.ing++; } });
+    if (data.dropPack && c.pack && JSON.stringify(c.pack) === JSON.stringify(data.dropPack)) delete c.pack;
+    if (data.packs) { c.packs = c.packs || []; data.packs.forEach(function (pk) { if (!packOf(db, pk.id)) { c.packs.push(clone(pk)); res.packs++; } }); }
+    if (data.packDef && !c.packDef && packOf(db, data.packDef)) c.packDef = data.packDef;
+    var norm = function (n) { return ingKey(n).replace(/э/g, 'е').replace(/[^a-zа-я0-9]/g, ''); };
+    (data.drinks || []).forEach(function (d) {
+      var t = (db.ttk || []).filter(function (x) { return norm(x.name) === norm(d.name); })[0];
+      if (!t) { res.miss.push(d.name); return; }
+      if (d.pack && !t.pack && packOf(db, d.pack)) t.pack = d.pack;
+      ['s0', 's250', 's350', 's450'].forEach(function (k) {
+        if (k === 's0' ? hasSizes(t) : !(t.sizes && t.sizes[k])) return;
+        var cs = d.cost && d.cost[k], pr = d.price && d.price[k], was = d.was && d.was[k], cur = t.cost && t.cost[k];
+        if (cs != null && (cur == null || (was != null && Math.abs(cur - was) < 0.005))) { t.cost = t.cost || {}; t.cost[k] = r2(cs); res.cost++; }
+        if (pr != null && !(t.price && t.price[k] != null)) { t.price = t.price || {}; t.price[k] = Math.round(pr); res.price++; }
+      });
+    });
+    return res;
+  }
+
+  // ---------- ABC-анализ меню ----------
+  // По напиткам: размеры одного напитка из ТТК складываются вместе. «Не товар» (пакеты, чаевые) не участвует.
+  function menuGroups(db, items, byDrink) {
+    var g = {}, order = [];
+    (items || []).forEach(function (x) {
+      var u = unitCost(db, x.name); if (u.x) return;
+      var key = x.name, label = x.name;
+      if (byDrink && u.t) { key = 't:' + u.t; label = u.tname; }
+      var o = g[key]; if (!o) { o = g[key] = { key: key, name: label, t: byDrink ? u.t || '' : '', q: 0, s: 0, cost: 0, costQ: 0, items: [] }; order.push(o); }
+      o.q += x.q; o.s += x.s; o.items.push(x.name);
+      if (u.cost != null) { o.cost += u.cost * x.q; o.costQ += x.q; }
+    });
+    return order.map(function (o) { o.q = r3(o.q); o.s = r2(o.s); o.cost = r2(o.cost); o.costOk = o.q > 0 && o.costQ >= o.q - 0.001; delete o.costQ; return o; });
+  }
+  // Класс по накопленной доле: позиции, что набирают первые 80% — A, до 95% — B, остальное — C.
+  function abcClass(list, field, cls) {
+    var tot = 0, acc = 0;
+    list.forEach(function (o) { tot += Math.max(0, o[field]); });
+    list.slice().sort(function (a, b) { return b[field] - a[field]; }).forEach(function (o) {
+      var before = acc; acc += Math.max(0, o[field]);
+      o[cls] = before < tot * 0.8 ? 'A' : before < tot * 0.95 ? 'B' : 'C';
+    });
+    return tot;
+  }
+  function abcReport(db, items, prevItems, byDrink) {
+    var cur = menuGroups(db, items, byDrink).filter(function (o) { return o.s > 0 || o.q > 0; }), prev = prevItems ? menuGroups(db, prevItems, byDrink) : null, pm = {};
+    var tot = abcClass(cur, 's', 'cs'), totQ = abcClass(cur, 'q', 'cq');
+    (prev || []).forEach(function (o) { pm[o.key] = o; });
+    cur.forEach(function (o) {
+      var p = pm[o.key]; o.share = tot ? Math.round(Math.max(0, o.s) / tot * 1000) / 10 : 0;
+      o.prevS = p ? p.s : 0; o.isNew = !!prev && !(p && p.s > 0); o.d = p && p.s > 0 ? Math.round((o.s - p.s) / p.s * 100) : null;
+    });
+    var have = {}; cur.forEach(function (o) { have[o.key] = 1; });
+    var gone = (prev || []).filter(function (o) { return o.s > 0 && !have[o.key]; }).sort(function (a, b) { return b.s - a.s; });
+    // Матрица меню (метод Касаваны — Смита): популярность × маржа с одной штуки.
+    var wc = cur.filter(function (o) { return o.costOk && o.q > 0; }), mx = null;
+    if (wc.length >= 4) {
+      var sq = 0, sgp = 0; wc.forEach(function (o) { sq += o.q; sgp += o.s - o.cost; });
+      var popCut = 0.7 / wc.length, mCut = sq ? sgp / sq : 0;
+      mx = { n: wc.length, mCut: r2(mCut), star: 0, horse: 0, puzzle: 0, dog: 0 };
+      wc.forEach(function (o) { o.m = r2((o.s - o.cost) / o.q); var pop = o.q / sq >= popCut, hi = o.m >= mCut; o.me = pop && hi ? 'star' : pop ? 'horse' : hi ? 'puzzle' : 'dog'; mx[o.me]++; });
+    }
+    cur.sort(function (a, b) { return b.s - a.s || b.q - a.q; });
+    var cnt = { A: 0, B: 0, C: 0 }, sA = 0; cur.forEach(function (o) { cnt[o.cs]++; if (o.cs === 'A') sA += Math.max(0, o.s); });
+    return { items: cur, tot: r2(tot), totQ: r3(totQ), a: cnt.A, b: cnt.B, c: cnt.C, aShare: tot ? Math.round(sA / tot * 100) : 0, gone: gone, mx: mx, hasPrev: !!prev };
+  }
+
+  // ---------- продажи по сотрудникам ----------
+  // Кассир в чеке aQsi → сотрудник: вручную (settings.cashiers) или по совпадению имени.
+  function cashierStaff(db, name) {
+    var map = db.settings.cashiers || {};
+    if (map[name] !== undefined) return map[name] ? byId(db.staff, map[name]) : null;
+    var k = ingKey(name), w = k.split(' ')[0], hit = null, n = 0;
+    if (!k) return null;
+    db.staff.forEach(function (s) { var sk = ingKey(s.name); if (sk === k || sk.split(' ')[0] === w) { hit = s; n++; } });
+    return n === 1 ? hit : null;
+  }
+  // Кто сколько продал. Способ: по кассиру в чеке; если кассиры не совпали с командой —
+  // выручка каждого часа делится между теми, кто был на смене; без кассы — выручка дня по отработанным часам.
+  function staffSales(db, rep, from, to, placeId) {
+    var rows = {}, other = { s: 0, n: 0 };
+    var row = function (id) { return rows[id] = rows[id] || { id: id, hours: 0, shifts: 0, s: 0, n: 0, m: 0, mOk: true, marks: 0, issued: 0 }; };
+    var shifts = db.shifts.filter(function (x) { return x.date >= from && x.date <= to && !x.check && (!placeId || placeOf(db, x) === placeId); }), byDay = {};
+    shifts.forEach(function (x) { var r = row(x.staffId); r.shifts++; r.hours += x.hours != null ? x.hours : plannedHours(x, db); (byDay[x.date] = byDay[x.date] || []).push(x); });
+    var cas = (rep && rep.cashiers) || [], mapped = 0, total = 0, method;
+    cas.forEach(function (c) { total += Math.max(0, c.s); if (cashierStaff(db, c.name)) mapped += Math.max(0, c.s); });
+    method = rep && cas.length && total > 0 && mapped / total >= 0.6 ? 'cashier' : rep && rep.dh ? 'shift' : 'revenue';
+    if (method === 'cashier') cas.forEach(function (c) {
+      var st = cashierStaff(db, c.name); if (!st) { other.s += c.s; other.n += c.n; return; }
+      var r = row(st.id); r.s += c.s; r.n += c.n; if (c.m == null) r.mOk = false; else r.m += c.m;
+    });
+    else if (method === 'shift') Object.keys(rep.dh).forEach(function (d) {
+      if (d < from || d > to) return;
+      rep.dh[d].forEach(function (e) {
+        var h = e[0], w = [], tot = 0;
+        (byDay[d] || []).forEach(function (x) {
+          var a = toMin(x.from), b = toMin(x.to); if (b <= a) b += 1440;
+          var ov = Math.min(b, (h + 1) * 60) - Math.max(a, h * 60); if (ov > 0) { w.push([x.staffId, ov]); tot += ov; }
+        });
+        if (!tot) { other.s += e[2]; other.n += e[1]; return; }
+        w.forEach(function (p) { var r = row(p[0]), k = p[1] / tot; r.s += e[2] * k; r.n += e[1] * k; if (e[3] == null) r.mOk = false; else r.m += e[3] * k; });
+      });
+    });
+    else (db.revenue || []).forEach(function (rv) {
+      if (rv.date < from || rv.date > to || (placeId && rv.placeId !== placeId)) return;
+      var list = (byDay[rv.date] || []).filter(function (x) { return placeOf(db, x) === rv.placeId; }), tot = 0;
+      list.forEach(function (x) { tot += x.hours != null ? x.hours : plannedHours(x, db); });
+      if (!tot) { other.s += rv.amount || 0; return; }
+      list.forEach(function (x) { row(x.staffId).s += (rv.amount || 0) * (x.hours != null ? x.hours : plannedHours(x, db)) / tot; });
+    });
+    (db.cards || []).forEach(function (c) {
+      var cd = String(c.createdAt || '').slice(0, 10);
+      if (c.createdBy && cd >= from && cd <= to) row(c.createdBy).issued++;
+      (c.marks || []).forEach(function (m) { var d = String(m.at || '').slice(0, 10); if (!m.gift && m.by && d >= from && d <= to) row(m.by).marks++; });
+    });
+    var out = Object.keys(rows).map(function (id) {
+      var r = rows[id], st = byId(db.staff, id); if (!st) return null;
+      r.name = st.name; r.s = r2(r.s); r.hours = round2(r.hours);
+      if (method === 'revenue') { r.n = null; r.m = null; } else { r.n = Math.round(r.n * 10) / 10; r.m = r.mOk ? Math.round(r.m * 10) / 10 : null; }
+      r.avg = r.n ? r2(r.s / r.n) : null; r.perHour = r.hours ? r2(r.s / r.hours) : null; r.mPer = r.n && r.m != null ? Math.round(r.m / r.n * 1000) / 10 : null;
+      delete r.mOk; return r;
+    }).filter(function (r) { return r && (r.hours || r.s || r.marks || r.issued); });
+    out.sort(function (a, b) { return (b.perHour || 0) - (a.perHour || 0) || b.s - a.s; });
+    var cmap = db.settings.cashiers || {};
+    return {
+      method: method, rows: out, other: { s: r2(other.s), n: Math.round(other.n) },
+      cashiers: cas.map(function (c) { var st = cashierStaff(db, c.name); return { name: c.name, s: c.s, n: c.n, staffId: st ? st.id : '', manual: cmap[c.name] !== undefined }; })
+    };
+  }
+
+  // ---------- отчёт по абонементам ----------
+  // Продажи абонемента: оформление и каждое продление. У старых карт история восстанавливается по датам (est).
+  function cardSales(db, c) {
+    if (c.sales && c.sales.length) return c.sales;
+    var out = [], type = byId(db.passTypes || [], c.typeId), price = c.kind === 'stamp' ? 0 : (type && type.price) || 0;
+    for (var k = 0; k <= (c.kind === 'stamp' ? 0 : c.cycle || 0); k++) {
+      var at = '';
+      if (k === 0) at = String(c.createdAt || '').slice(0, 10) || (c.cycle ? '' : c.start || '');
+      else if (k === c.cycle) at = c.start || '';
+      else { var fm = (c.marks || []).filter(function (m) { return m.cycle === k; })[0]; at = fm ? String(fm.at).slice(0, 10) : ''; }
+      if (isDate(at)) out.push({ at: at, cycle: k, typeId: c.typeId, total: c.total, price: price, est: true });
+    }
+    return out;
+  }
+  function cardsReport(db, from, to, today) {
+    var rep = { sold: 0, soldSum: 0, newN: 0, renewN: 0, stampN: 0, byType: [], marks: 0, gifts: 0, guests: 0, byStaff: [], wd: [0, 0, 0, 0, 0, 0, 0],
+      active: 0, activeStamp: 0, debtDrinks: 0, debtSum: 0, expiring: [], gone: [], top: [], finished: 0, finDays: 0, noPrice: 0, est: false };
+    var guests = {}, types = {}, staffN = {};
+    (db.cards || []).forEach(function (c) {
+      var st = cardState(c, today), sales = cardSales(db, c);
+      sales.forEach(function (x) {
+        if (x.at < from || x.at > to) return;
+        if (c.kind === 'stamp') { rep.stampN++; return; }
+        rep.sold++; rep.soldSum += x.price || 0; if (!x.price) rep.noPrice++; if (x.est) rep.est = true;
+        if (x.cycle) rep.renewN++; else rep.newN++;
+        var tn = (byId(db.passTypes || [], x.typeId) || {}).name || c.typeName || 'Абонемент', o = types[tn] = types[tn] || { name: tn, n: 0, s: 0 };
+        o.n++; o.s += x.price || 0;
+      });
+      var cm = 0, byCycle = {};
+      (c.marks || []).forEach(function (m) {
+        if (!m.gift) (byCycle[m.cycle] = byCycle[m.cycle] || []).push(m);
+        var d = String(m.at || '').slice(0, 10); if (d < from || d > to) return;
+        if (m.gift) { rep.gifts++; return; }
+        rep.marks++; cm++; guests[c.id] = 1;
+        var nm = m.byName || (byId(db.staff, m.by) || {}).name || '?'; staffN[nm] = (staffN[nm] || 0) + 1;
+        rep.wd[dayIndex(d)]++;
+      });
+      if (cm) rep.top.push({ id: c.id, num: c.num, client: c.client, n: cm });
+      // закончившиеся абонементы: последняя отметка цикла попала в период
+      if (c.kind !== 'stamp') Object.keys(byCycle).forEach(function (k) {
+        var list = byCycle[k], sale = sales.filter(function (x) { return x.cycle === +k; })[0], need = (sale && sale.total) || c.total;
+        if (list.length < need) return;
+        var fin = String(list[need - 1].at).slice(0, 10); if (fin < from || fin > to) return;
+        rep.finished++; if (sale) rep.finDays += Math.max(0, daysBetween(sale.at, fin));
+      });
+      if (c.archived) return;
+      var lastM = c.marks && c.marks.length ? String(c.marks[c.marks.length - 1].at).slice(0, 10) : '', since = lastM || c.start || String(c.createdAt || '').slice(0, 10);
+      var idle = isDate(since) ? daysBetween(since, today) : 0, info = { id: c.id, num: c.num, client: c.client, phone: c.phone || '', idle: idle, last: lastM };
+      if (c.kind === 'stamp') { rep.activeStamp++; if (st.used > 0 && idle >= 21) { info.left = 0; info.stamp = st.used; rep.gone.push(info); } return; }
+      if (st.finished || st.expired) return;
+      var lastSale = sales[sales.length - 1], price = (lastSale && lastSale.price) || 0;
+      rep.active++; rep.debtDrinks += st.left; rep.debtSum += c.total ? st.left * price / c.total : 0;
+      info.left = st.left;
+      if (c.expires && st.left > 0) { var dl = daysBetween(today, c.expires); if (dl <= 14) rep.expiring.push({ id: c.id, num: c.num, client: c.client, phone: c.phone || '', left: st.left, expires: c.expires, days: dl }); }
+      if (idle >= 21) rep.gone.push(info);
+    });
+    rep.guests = Object.keys(guests).length;
+    rep.byType = Object.keys(types).map(function (k) { return types[k]; }).sort(function (a, b) { return b.n - a.n; });
+    rep.byStaff = Object.keys(staffN).map(function (k) { return { name: k, n: staffN[k] }; }).sort(function (a, b) { return b.n - a.n; });
+    rep.top.sort(function (a, b) { return b.n - a.n; }); rep.top = rep.top.slice(0, 5);
+    rep.expiring.sort(function (a, b) { return a.days - b.days; });
+    rep.gone.sort(function (a, b) { return b.idle - a.idle; });
+    rep.debtSum = Math.round(rep.debtSum); rep.soldSum = Math.round(rep.soldSum);
+    return rep;
+  }
+
   // ---------- что видит пользователь ----------
   function view(db, me) {
     var v = clone(db);
@@ -1759,6 +2356,8 @@ var PICH_CORE = (function () {
       return v;
     }
     v.mySessions = mySes;
+    if (v.settings) delete v.settings.plan;
+    delete v.costs;
     v.staff = db.staff.filter(function (s) { return s.active !== false || db.shifts.some(function (x) { return x.staffId === s.id; }); })
       .map(function (s) {
         var o = { id: s.id, name: s.name, role: s.role, inSchedule: s.inSchedule, color: s.color, active: s.active };
@@ -1766,7 +2365,7 @@ var PICH_CORE = (function () {
         return o;
       });
     v.money = (db.money || []).filter(function (m) { return m.staffId === me.id; });
-    v.ttk = db.ttk.filter(function (t) { return !t.hidden; });
+    v.ttk = db.ttk.filter(function (t) { return !t.hidden; }).map(function (t) { if (t.cost) { t = clone(t); delete t.cost; } return t; });
     v.me = { id: me.id, name: me.name, role: me.role, rate: me.rate, color: me.color, inSchedule: me.inSchedule, pct: me.pct, calKey: me.calKey, med: clone(me.med || null), notify: !!me.notify, notifyVia: me.notifyVia || '' };
     v.hyg = (db.hyg || []).filter(function (x) { return x.staffId === me.id; });              // допуск к смене — только свой
     v.lessonDone = (db.lessonDone || []).filter(function (x) { return x.staffId === me.id; });
@@ -2276,6 +2875,7 @@ var PICH_CORE = (function () {
     r.drinks = Math.round(num(x.drinks, 1, 500) || 10);
     r.days = Math.round(num(x.days, 0, 3650) || 0);
     r.reward = str(x.reward, 80);
+    r.price = r.kind === 'stamp' ? 0 : Math.round(num(x.price, 0, 1000000) || 0);
     r.color = /^#[0-9a-fA-F]{6}$/.test(x.color) ? x.color : '#e8743b';
   });
   A['passType.delete'] = function (db, me, p) { needAdmin(me); var t = byId(db.passTypes, p.id); if (!t) fail('Уже удалено'); removeById(db.passTypes, p.id); return { log: 'Удалил вид абонемента ' + t.name }; };
@@ -2305,6 +2905,7 @@ var PICH_CORE = (function () {
         expires: type.kind === 'prepaid' && type.days ? addDays(ctx.today, type.days) : '',
         marks: [], cycle: 0, archived: false, createdBy: me.id, createdAt: ctx.now
       };
+      rec.sales = [{ at: ctx.today, cycle: 0, typeId: type.id, total: rec.total, price: type.kind === 'stamp' ? 0 : Math.round(type.price || 0) }];
       db.cards.push(rec);
     }
     return { id: rec.id, log: (old ? 'Изменил абонемент №' : 'Оформил абонемент №') + rec.num + ' — ' + rec.client };
@@ -2347,15 +2948,254 @@ var PICH_CORE = (function () {
   A['card.renew'] = function (db, me, p, ctx) {
     if (!canIssue(db, me)) fail('Продлевать абонементы может только админ.');
     var c = byId(db.cards, p.id); if (!c) fail('Абонемент не найден');
+    var hist = cardSales(db, c).map(function (x) { return clone(x); });
     var type = byId(db.passTypes, p.typeId || c.typeId);
     if (type) { c.typeId = type.id; c.typeName = type.name; c.kind = type.kind; c.color = type.color; c.total = type.drinks; c.reward = type.reward; }
     if (p.total != null && p.total !== '') c.total = Math.round(num(p.total, 1, 500) || c.total);
     c.cycle++; c.start = ctx.today; c.archived = false;
     c.expires = c.kind === 'prepaid' && type && type.days ? addDays(ctx.today, type.days) : '';
+    c.sales = hist.concat([{ at: ctx.today, cycle: c.cycle, typeId: c.typeId, total: c.total, price: c.kind === 'stamp' ? 0 : Math.round((type && type.price) || 0) }]).slice(-60);
     return { log: 'Продлил абонемент №' + c.num + ' — ' + c.client };
   };
 
+  // ---------- себестоимость и кассиры ----------
+  A['cost.ing'] = function (db, me, p) {
+    needAdmin(me);
+    var key = ingKey(p.key || p.name); if (!key) fail('Нет названия');
+    var c = db.costs = db.costs || {}; c.ing = c.ing || {};
+    var old = c.ing[key], pack = p.kind === 'pack' || !!(old && old.kind === 'pack'), man = !!(p.man || (old && old.man));
+    var name = str(p.name, 60) || (old && old.name) || ingName(key);
+    if (p.same) {
+      var to = c.ing[ingKey(p.same)]; if (!to || to.same || !hasPrice(to) || ingKey(p.same) === key) fail('Выбери ингредиент, у которого уже есть цена');
+      if (Object.keys(c.ing).some(function (k) { return c.ing[k].same === key; })) fail('На этот ингредиент уже ссылаются другие — у него должна остаться своя цена');
+      c.ing[key] = { name: name, same: ingKey(p.same) }; if (man) c.ing[key].man = true;
+      return { log: 'Ингредиент ' + name + ' — по цене «' + (to.name || p.same) + '»' };
+    }
+    if (old && old.same) fail('Это название объединено с другим — меняй основное');
+    var per = pack ? 'шт' : ['кг', 'л', 'шт'].indexOf(p.per) >= 0 ? p.per : (old && old.per) || 'кг';
+    var price = p.price === undefined ? (old && typeof old.price === 'number' ? old.price : null) : null;     // без price — только переименовать
+    if (p.price !== undefined && p.price !== '' && p.price !== null) { price = num(p.price, 0, 1000000); if (price == null) fail('Цена — это число'); price = Math.round(price * 100) / 100; }
+    c.ing[key] = { name: name, per: per, price: price }; if (pack) c.ing[key].kind = 'pack'; if (man) c.ing[key].man = true;
+    return { log: (old ? (old.name && old.name !== name ? 'Переименовал «' + old.name + '» в «' + name + '»' : name) : (pack ? 'Добавил упаковку: ' : 'Добавил ингредиент: ') + name) + (price != null ? ' — ' + price + ' ₽ за ' + per : p.price !== undefined && old ? ': цена убрана' : '') };
+  };
+  // Удалить заведённый вручную ингредиент или упаковку — вместе с привязками к напиткам и наборам.
+  A['cost.ingDel'] = function (db, me, p) {
+    needAdmin(me);
+    var c = db.costs || {}, key = ingKey(p.key), e = (c.ing || {})[key];
+    if (!e || !e.man) fail('Удалить можно только то, что добавлено вручную');
+    delete c.ing[key];
+    Object.keys(c.ing).forEach(function (k) { if (c.ing[k].same === key) delete c.ing[k]; });
+    (db.ttk || []).forEach(function (t) {
+      if (t.add) { Object.keys(t.add).forEach(function (s) { t.add[s] = t.add[s].filter(function (x) { return x.k !== key; }); if (!t.add[s].length) delete t.add[s]; }); if (!Object.keys(t.add).length) delete t.add; }
+      if (t.rc) Object.keys(t.rc).forEach(function (s) { t.rc[s] = t.rc[s].filter(function (x) { return x.k !== key; }); });
+    });
+    (c.packs || []).forEach(function (pk) { ['all', 's250', 's350', 's450'].forEach(function (s) { if (pk[s]) pk[s] = pk[s].filter(function (x) { return x.k !== key; }); }); });
+    return { log: 'Удалил ' + (e.kind === 'pack' ? 'упаковку: ' : 'ингредиент: ') + (e.name || key) };
+  };
+  // Ингредиент к напитку: прибавляется к составу из ТТК (сама ТТК не меняется). size: s250 / s350 / s450 / s0 или all — во все размеры.
+  function ttkSizeKeys(t, size) {
+    var have = ['s250', 's350', 's450'].filter(function (k) { return t.sizes && t.sizes[k]; });
+    if (size === 'all') return have.length ? have : ['s0'];
+    if (size === 's0' ? have.length : have.indexOf(size) < 0) fail('У напитка нет такого размера');
+    return [size];
+  }
+  A['ttk.add'] = function (db, me, p) {
+    needAdmin(me);
+    var t = byId(db.ttk, p.id); if (!t) fail('Напиток не найден');
+    var key = ingKey(p.key), known = (db.costs && db.costs.ing && db.costs.ing[key]) || ingList(db, 'ing').some(function (x) { return x.key === key; });
+    if (!key || !known) fail('Сначала добавь ингредиент в список');
+    var q = num(p.q, 0, 100000); if (!(q > 0)) fail('Количество — это число больше нуля');
+    t.add = t.add || {};
+    ttkSizeKeys(t, p.size).forEach(function (k) {
+      var own = t.rc && t.rc[k], l = own || (t.add[k] = t.add[k] || []), ex = l.filter(function (x) { return x.k === key; })[0];
+      if (ex) ex.q = q; else l.push(own ? { k: key, q: q, u: '' } : { k: key, q: q });
+    });
+    if (!Object.keys(t.add).length) delete t.add;
+    return { log: 'Добавил к «' + t.name + '»: ' + ((db.costs && db.costs.ing && db.costs.ing[key] && db.costs.ing[key].name) || ingName(key)) + ' ' + q };
+  };
+  A['ttk.addDel'] = function (db, me, p) {
+    needAdmin(me);
+    var t = byId(db.ttk, p.id); if (!t) fail('Напиток не найден');
+    var key = ingKey(p.key);
+    (p.size === 'all' ? Object.keys(t.add || {}) : [p.size]).forEach(function (k) { if (t.add && t.add[k]) { t.add[k] = t.add[k].filter(function (x) { return x.k !== key; }); if (!t.add[k].length) delete t.add[k]; } });
+    if (t.add && !Object.keys(t.add).length) delete t.add;
+    return { log: 'Убрал из «' + t.name + '»: ' + ingName(key) };
+  };
+  // Конструктор: свой состав порции (заменяет состав из ТТК в расчёте себестоимости; сама ТТК не меняется).
+  A['ttk.rc'] = function (db, me, p) {
+    needAdmin(me);
+    var t = byId(db.ttk, p.id); if (!t) fail('Напиток не найден');
+    var k = ttkSizeKeys(t, p.size)[0];
+    var rows = (Array.isArray(p.rows) ? p.rows : []).slice(0, 40).map(function (x) {
+      var key = ingKey(x && x.k); if (!key) fail('Нет названия ингредиента');
+      var q = x.q === '' || x.q == null ? null : num(x.q, 0, 100000); if (x.q !== '' && x.q != null && q == null) fail('Количество — это число');
+      return { k: key, q: q, u: ['г', 'мл', 'шт'].indexOf(x.u) >= 0 ? x.u : '' };
+    });
+    t.rc = t.rc || {}; t.rc[k] = rows;
+    if (t.add) { delete t.add[k]; if (!Object.keys(t.add).length) delete t.add; }
+    return { log: 'Состав для себестоимости: ' + t.name + (k === 's0' ? '' : ' ' + k.slice(1)) };
+  };
+  A['ttk.rcReset'] = function (db, me, p) {
+    needAdmin(me);
+    var t = byId(db.ttk, p.id); if (!t) fail('Напиток не найден');
+    var k = ttkSizeKeys(t, p.size)[0];
+    if (t.rc) { delete t.rc[k]; if (!Object.keys(t.rc).length) delete t.rc; }
+    if (t.add) { delete t.add[k]; if (!Object.keys(t.add).length) delete t.add; }
+    return { log: 'Состав как в ТТК: ' + t.name + (k === 's0' ? '' : ' ' + k.slice(1)) };
+  };
+  // Объединить два названия в одно: «молока» → «Молоко». Во всех составах и наборах будет основное; цена — его.
+  A['cost.merge'] = function (db, me, p) {
+    needAdmin(me);
+    var c = db.costs = db.costs || {}; c.ing = c.ing || {};
+    var from = ingKey(p.from), to = ingKey(p.to);
+    if (to && c.ing[to] && c.ing[to].same) to = c.ing[to].same;
+    if (!from || !to || from === to) fail('Выбери, с чем объединить');
+    var known = ingList(db).some(function (x) { return x.key === to; }) || c.ing[to];
+    if (!known) fail('Нет такого ингредиента');
+    var fe = c.ing[from] || {}, te = c.ing[to];
+    if (!te) te = c.ing[to] = { name: ingName(to), per: fe.per || 'кг', price: null };
+    if (!hasPrice(te) && hasPrice(fe)) { te.price = fe.price; te.per = fe.per; }
+    if (fe.kind === 'pack') te.kind = 'pack';
+    var swap = function (list) {
+      if (!list) return list;
+      var out = []; list.forEach(function (x) { var k = x.k === from ? to : x.k; if (!out.some(function (y) { return y.k === k; })) { var y = clone(x); y.k = k; out.push(y); } });
+      return out;
+    };
+    (db.ttk || []).forEach(function (t) {
+      if (t.rc) Object.keys(t.rc).forEach(function (s) { t.rc[s] = swap(t.rc[s]); });
+      if (t.add) Object.keys(t.add).forEach(function (s) { t.add[s] = swap(t.add[s]); });
+    });
+    (c.packs || []).forEach(function (pk) { ['all', 's250', 's350', 's450'].forEach(function (s) { if (pk[s]) pk[s] = swap(pk[s]); }); });
+    Object.keys(c.ing).forEach(function (k) { if (c.ing[k].same === from) c.ing[k].same = to; });
+    var inText = (db.ttk || []).some(function (t) {
+      return ['250', '350', '450', ''].some(function (size) { var key = 's' + (size || '0'); if (size ? !(t.sizes && t.sizes[key]) : hasSizes(t)) return false; return !(t.rc && t.rc[key]) && ttkParts(t, size).some(function (x) { return x.key === from; }); });
+    });
+    if (inText) c.ing[from] = { name: fe.name || ingName(from), same: to }; else delete c.ing[from];
+    return { log: 'Объединил «' + (fe.name || ingName(from)) + '» с «' + te.name + '»' };
+  };
+  A['cost.unmerge'] = function (db, me, p) {
+    needAdmin(me);
+    var c = db.costs || {}, key = ingKey(p.key), e = (c.ing || {})[key];
+    if (!e || !e.same) fail('Это название ни с чем не объединено');
+    delete c.ing[key];
+    return { log: 'Разъединил «' + (e.name || ingName(key)) + '»' };
+  };
+  // Наборы упаковки
+  function packItems(db, list) {
+    return (Array.isArray(list) ? list : []).slice(0, 20).map(function (x) {
+      var k = ingKey(x && x.k), q = num(x && x.q, 0, 1000);
+      if (!k || !(db.costs && db.costs.ing && db.costs.ing[k])) fail('В наборе может быть только то, что есть в списке упаковки');
+      if (!(q > 0)) fail('Количество — больше нуля');
+      return { k: k, q: q };
+    });
+  }
+  A['pack.save'] = function (db, me, p) {
+    needAdmin(me);
+    var x = p.item || {}, c = db.costs = db.costs || {}; c.packs = c.packs || [];
+    var name = str(x.name, 40); if (!name) fail('Введи название набора');
+    var rec = x.id ? packOf(db, x.id) : null;
+    if (!rec) { rec = { id: okId(x.id) && !packOf(db, x.id) ? x.id : genId('pk') }; c.packs.push(rec); }
+    rec.name = name; ['all', 's250', 's350', 's450'].forEach(function (k) { rec[k] = packItems(db, x[k]); });
+    if (!c.packDef) c.packDef = rec.id;
+    return { id: rec.id, log: 'Набор упаковки: ' + name };
+  };
+  A['pack.del'] = function (db, me, p) {
+    needAdmin(me);
+    var c = db.costs || {}, pk = packOf(db, p.id); if (!pk) fail('Набор уже удалён');
+    c.packs = c.packs.filter(function (x) { return x.id !== p.id; });
+    if (c.packDef === p.id) delete c.packDef;
+    (db.ttk || []).forEach(function (t) { if (t.pack === p.id) delete t.pack; });
+    Object.keys(c.map || {}).forEach(function (k) { if (c.map[k].p === p.id) delete c.map[k].p; });
+    return { log: 'Удалил набор упаковки: ' + pk.name };
+  };
+  A['pack.def'] = function (db, me, p) {
+    needAdmin(me);
+    var c = db.costs = db.costs || {};
+    if (!p.id) { delete c.packDef; return { log: 'Набор упаковки по умолчанию убран' }; }
+    var pk = packOf(db, p.id); if (!pk) fail('Набор не найден');
+    c.packDef = pk.id; return { log: 'Набор упаковки по умолчанию: ' + pk.name };
+  };
+  A['ttk.pack'] = function (db, me, p) {
+    needAdmin(me);
+    var id = p.pack == null ? '' : String(p.pack);
+    if (id && id !== '-' && !packOf(db, id)) fail('Набор не найден');
+    var n = 0;
+    (Array.isArray(p.ids) ? p.ids : [p.id]).forEach(function (tid) { var t = byId(db.ttk, tid); if (!t) return; if (id) t.pack = id; else delete t.pack; n++; });
+    if (!n) fail('Напиток не найден');
+    return { log: 'Набор упаковки у ' + n + ' напитков: ' + (id === '-' ? 'без упаковки' : id ? packOf(db, id).name : 'по умолчанию') };
+  };
+  // Стандартные наборы для старта: позиции упаковки без цен.
+  A['pack.starter'] = function (db, me) {
+    needAdmin(me);
+    var c = db.costs = db.costs || {}; c.ing = c.ing || {}; c.packs = c.packs || [];
+    if (c.packs.length) fail('Наборы уже есть');
+    var item = function (name) { var k = ingKey(name); if (!c.ing[k]) c.ing[k] = { name: name, per: 'шт', price: null, kind: 'pack', man: true }; return { k: k, q: 1 }; };
+    c.packs.push({ id: 'hot', name: 'Горячий напиток', all: [], s250: [item('Стаканчик 250'), item('Крышка 80')], s350: [item('Стаканчик 350'), item('Крышка 90')], s450: [item('Стаканчик 450'), item('Крышка 90')] });
+    c.packs.push({ id: 'cold', name: 'Холодный напиток', all: [item('Трубочка')], s250: [], s350: [item('Холодный стакан 350'), item('Крышка для холодного')], s450: [item('Холодный стакан 450'), item('Крышка для холодного')] });
+    c.packs.push({ id: 'dessert', name: 'Десерт', all: [item('Упаковка для десерта')], s250: [], s350: [], s450: [] });
+    c.packs.push({ id: 'pastry', name: 'Выпечка', all: [item('Пакет для выпечки')], s250: [], s350: [], s450: [] });
+    c.packDef = c.packDef || 'hot';
+    return { log: 'Создал стандартные наборы упаковки' };
+  };
+  A['cost.map'] = function (db, me, p) {
+    needAdmin(me);
+    var name = str(p.name, 80); if (!name) fail('Нет названия позиции');
+    var c = db.costs = db.costs || {}, x = p.to || null; c.map = c.map || {};
+    if (!x) { delete c.map[name]; return { log: 'Позиция кассы «' + name + '» — снова по названию' }; }
+    if (x.x) c.map[name] = { x: 1 };
+    else if (x.c != null && x.c !== '') {
+      var v = num(x.c, 0, 1000000); if (v == null) fail('Себестоимость — это число');
+      c.map[name] = { c: Math.round(v * 100) / 100 };
+      if (x.p) { if (!packOf(db, x.p)) fail('Набор упаковки не найден'); c.map[name].p = String(x.p); }
+    }
+    else {
+      var t = byId(db.ttk, x.t); if (!t) fail('Выбери напиток из ТТК');
+      c.map[name] = { t: t.id, s: ['250', '350', '450'].indexOf(String(x.s)) >= 0 && t.sizes && t.sizes['s' + x.s] ? String(x.s) : '' };
+    }
+    return { log: 'Привязал позицию кассы «' + name + '»' };
+  };
+  A['ttk.price'] = function (db, me, p) {
+    needAdmin(me);
+    var t = byId(db.ttk, p.id); if (!t) fail('Напиток не найден');
+    var pr = {}, any = false;
+    ['s0', 's250', 's350', 's450'].forEach(function (k) {
+      var x = p.price && p.price[k]; if (x === '' || x == null) return;
+      var v = num(x, 0, 100000); if (v == null) fail('Цена — это число');
+      pr[k] = Math.round(v); any = true;
+    });
+    if (any) t.price = pr; else delete t.price;
+    return { log: 'Цены продажи: ' + t.name };
+  };
+  A['ttk.cost'] = function (db, me, p) {
+    needAdmin(me);
+    var t = byId(db.ttk, p.id); if (!t) fail('Напиток не найден');
+    var k = ['s0', 's250', 's350', 's450'].indexOf(p.size) >= 0 ? p.size : ''; if (!k) fail('Неверный размер');
+    if (p.cost === '' || p.cost == null) { if (t.cost) { delete t.cost[k]; if (!Object.keys(t.cost).length) delete t.cost; } return { log: 'Себестоимость ' + t.name + ' — снова по ингредиентам' }; }
+    var v = num(p.cost, 0, 100000); if (v == null) fail('Себестоимость — это число');
+    t.cost = t.cost || {}; t.cost[k] = Math.round(v * 100) / 100;
+    return { log: 'Своя себестоимость: ' + t.name + (k === 's0' ? '' : ' ' + k.slice(1)) + ' — ' + t.cost[k] + ' ₽' };
+  };
+  A['cashier.map'] = function (db, me, p) {
+    needAdmin(me);
+    var name = str(p.name, 40); if (!name) fail('Нет имени кассира');
+    var m = db.settings.cashiers = db.settings.cashiers || {};
+    if (p.staffId == null) delete m[name];
+    else if (p.staffId === '') m[name] = '';
+    else { if (!byId(db.staff, p.staffId)) fail('Сотрудник не найден'); m[name] = p.staffId; }
+    return { log: 'Кассир «' + name + '»: ' + (m[name] ? byId(db.staff, m[name]).name : m[name] === '' ? 'не сотрудник' : 'по имени') };
+  };
+
   A['card.delete'] = function (db, me, p) { needAdmin(me); var c = byId(db.cards, p.id); if (!c) fail('Уже удалено'); removeById(db.cards, p.id); return { log: 'Удалил абонемент №' + c.num + ' — ' + c.client }; };
+
+  A['plan.set'] = function (db, me, p) {
+    needAdmin(me);
+    var month = String(p.month || ''); if (!/^\d{4}-\d{2}$/.test(month)) fail('Неверный месяц');
+    var amount = p.amount === '' || p.amount == null ? 0 : num(p.amount, 0, 10000000000);
+    if (amount == null) fail('План — это число, например 1 500 000');
+    db.settings.plan = db.settings.plan || {};
+    db.settings.plan[month] = Math.round(amount);
+    return { log: amount ? 'План выручки на ' + month + ': ' + Math.round(amount) + ' ₽' : 'Убрал план выручки на ' + month };
+  };
 
   A['settings.save'] = function (db, me, p) {
     needAdmin(me);
@@ -2383,6 +3223,7 @@ var PICH_CORE = (function () {
     if (x.pctSplit !== undefined) s.pctSplit = x.pctSplit === 'full' ? 'full' : 'hours';
     if (x.quizCount !== undefined) s.quizCount = Math.round(num(x.quizCount, 3, 40) || 10);
     if (x.quizPass !== undefined) s.quizPass = Math.round(num(x.quizPass, 10, 100) || 80);
+    if (x.dayReport !== undefined) { var drp = x.dayReport || {}; s.dayReport = { on: drp.on !== false, at: isTime(drp.at) ? drp.at : '21:00' }; }
     if (x.pctMode !== undefined) s.pctMode = x.pctMode === 'tiers' ? 'tiers' : 'flat';
     if (x.pctTiers !== undefined) {
       var seen = {}, tiers = [];
@@ -2464,7 +3305,7 @@ var PICH_CORE = (function () {
     newDb: newDb, view: view, apply: apply, claim: claim, salary: salary, cardState: cardState, cardUsed: cardUsed,
     findByTg: findByTg, findByPlat: findByPlat, bindPlat: bindPlat, bound: bound, isAdmin: isAdmin, isLocked: isLocked, hoursBetween: hoursBetween, plannedHours: plannedHours,
     presetTimes: presetTimes, dayHours: dayHours, dayIndex: dayIndex, extraHours: extraHours, extraMins: extraMins, weekOf: weekOf, migrate: migrate,
-    aqsiOn: aqsiOn, aqsiCovers: aqsiCovers, aqsiReceipt: aqsiReceipt, aqsiPlace: aqsiPlace, aqsiLocal: aqsiLocal, aqsiItems: aqsiItems, aqsiSales: aqsiSales, salesReport: salesReport, payKind: payKind, isDate: isDate, CP_KINDS: CP_KINDS, CP_ACTS: CP_ACTS, cpOut: cpOut, cpFmt: cpFmt, cpNorm: cpNorm, cpTimes: cpTimes, cpEntry: cpEntry, cpChecks: cpChecks, hygOf: hygOf, medState: medState, medDue: medDue, cpIngest: cpIngest, cpMissed: cpMissed, haccpPrune: haccpPrune, haccpIssues: haccpIssues, addMonths: addMonths, daysBetween: daysBetween, LESSONS: LESSONS, SAN_BANK: SAN_BANK, toMin: toMin, aqsiDay: aqsiDay, aqsiTotals: aqsiTotals, aqsiApply: aqsiApply, findBySession: findBySession, addSession: addSession, ics: ics, findByCalKey: findByCalKey, pctForShift: pctForShift, tiersOn: tiersOn, tierPct: tierPct, choreState: choreState, cashMonth: cashMonth, CASH_OUT: CASH_OUT, CASH_IN: CASH_IN, CASH_BARISTA: CASH_BARISTA, quizBuild: quizBuild, quizLast: quizLast, genCode: genCode, placeOf: placeOf, multOf: multOf, pctFor: pctFor, revenueOf: revenueOf, salesShare: salesShare, sameDay: sameDay, overlaps: overlaps,
+    aqsiOn: aqsiOn, aqsiCovers: aqsiCovers, aqsiReceipt: aqsiReceipt, aqsiPlace: aqsiPlace, aqsiLocal: aqsiLocal, aqsiItems: aqsiItems, aqsiSales: aqsiSales, salesReport: salesReport, planFor: planFor, revForecast: revForecast, monthSum: monthSum, dayReport: dayReport, dayReportText: dayReportText, ingKey: ingKey, ingSimilar: ingSimilar, costsImport: costsImport, recipeOf: recipeOf, ingUses: ingUses, packOf: packOf, packFor: packFor, packParts: packParts, recipeParts: recipeParts, compParts: compParts, ttkCost: ttkCost, ingList: ingList, itemMatch: itemMatch, unitCost: unitCost, costReport: costReport, menuGroups: menuGroups, abcReport: abcReport, cashierStaff: cashierStaff, staffSales: staffSales, cardSales: cardSales, cardsReport: cardsReport, daysBetween: daysBetween, payKind: payKind, isDate: isDate, CP_KINDS: CP_KINDS, CP_ACTS: CP_ACTS, cpOut: cpOut, cpFmt: cpFmt, cpNorm: cpNorm, cpTimes: cpTimes, cpEntry: cpEntry, cpChecks: cpChecks, hygOf: hygOf, medState: medState, medDue: medDue, cpIngest: cpIngest, cpMissed: cpMissed, haccpPrune: haccpPrune, haccpIssues: haccpIssues, addMonths: addMonths, daysBetween: daysBetween, LESSONS: LESSONS, SAN_BANK: SAN_BANK, toMin: toMin, aqsiDay: aqsiDay, aqsiTotals: aqsiTotals, aqsiApply: aqsiApply, findBySession: findBySession, addSession: addSession, ics: ics, findByCalKey: findByCalKey, pctForShift: pctForShift, tiersOn: tiersOn, tierPct: tierPct, choreState: choreState, cashMonth: cashMonth, CASH_OUT: CASH_OUT, CASH_IN: CASH_IN, CASH_BARISTA: CASH_BARISTA, quizBuild: quizBuild, quizLast: quizLast, genCode: genCode, placeOf: placeOf, multOf: multOf, pctFor: pctFor, revenueOf: revenueOf, salesShare: salesShare, sameDay: sameDay, overlaps: overlaps,
     monthOf: monthOf, addDays: addDays, rateFor: rateFor, genId: genId, byId: byId, clone: clone, canIssue: canIssue,
     actions: Object.keys(A)
   };
@@ -2489,7 +3330,7 @@ var MAX_BOT = '';
 var WEB_URL = '';
 var YA_CLIENT_ID = '';   // ClientID приложения на oauth.yandex.ru для датчиков ХАССП (необязательно — можно вписать в приложении)
 // Когда собран этот файл — видно внизу профиля. Помогает понять, открылась ли новая версия.
-var BUILD = '24.11.2026 20:35';
+var BUILD = '25.11.2026 13:30';
 // ===============================================
 
 var C = PICH_CORE;
@@ -2775,7 +3616,7 @@ function failMsg(e) { var m = (e && (e.userMessage || e.message)) || 'Что-т�
 
 // ---------- данные: демо и сервер ----------
 var Demo = {
-  KEY: 'pich_team_demo_v14', ME: 'pich_team_demo_me7', db: null, meId: null,
+  KEY: 'pich_team_demo_v16', ME: 'pich_team_demo_me7', db: null, meId: null,
   init: function () {
     try { var r = localStorage.getItem(this.KEY); if (r) this.db = JSON.parse(r); } catch (e) {}
     if (!this.db || !this.db.staff) { this.db = sampleDb(); this.save(); }
@@ -2906,6 +3747,20 @@ function sampleDb() {
   money('anya', 'payout', 5000, 'Аванс');
   money('katya', 'payout', 4000, 'Аванс');
   money('misha', 'bonus', 500, 'Подмена');
+  // прошлый месяц — для итогов месяца, сравнения и карты загрузки
+  var pm = monthShift(month, -1), pn = daysIn(pm), pdays = [];
+  for (var d2 = 1; d2 <= pn; d2++) {
+    var date2 = pm + '-' + pad(d2), wd2 = dp(date2).wd; pdays.push(date2);
+    if (wd2 === 2) add('boss', date2, 'full');
+    else if (wd2 >= 5 || d2 % 2 === 0) add(team[d2 % 3], date2, 'full');
+    else { add(team[d2 % 3], date2, 'morning'); add(team[(d2 + 1) % 3], date2, 'evening'); }
+  }
+  pdays.forEach(function (date2) { var dn2 = +date2.slice(8); db.revenue.push({ id: 'rp' + dn2, date: date2, placeId: 'p1', amount: Math.round((27000 + (dn2 * 1900) % 21000) * 0.94), by: 'boss', at: date2 + 'T21:00:00Z' }); });
+  function pc(id, day, cat, amount, who, note) { return { id: id, date: pm + '-' + day, kind: 'out', cat: cat, amount: amount, who: who, note: note, placeId: 'p1', by: 'boss', at: T0, photo: '' }; }
+  db.cash = db.cash.concat([pc('cp1', '01', 'Аренда', 85000, '', ''), pc('cp2', '05', 'Поставка', 47600, 'Обжарщик', 'зерно, 16 кг'), pc('cp3', '12', 'Поставка', 39800, 'Молочная ферма', 'молоко, сливки'),
+    pc('cp4', '19', 'Поставка', 41200, 'Обжарщик', 'зерно, 14 кг'), pc('cp5', '25', 'Коммунальные', 14800, 'Энергосбыт', ''), pc('cp6', '27', 'Закупка', 6300, 'Хозмаг', 'стаканы, крышки'), pc('cp7', '28', 'Зарплата', 120000, 'команда', 'расчёт за месяц')]);
+  db.settings.plan = {}; db.settings.plan[pm] = 1150000;
+  demoCosts(db);
   demoCards(db);
   demoHaccp(db);
   db.rev = 1;
@@ -2941,6 +3796,41 @@ function demoHaccp(db) {
   db.settings.haccp = db.settings.haccp || {};
   db.settings.haccp.ya = { on: true, at: new Date(Date.now() - 6 * 60000).toISOString(), devices: [{ id: 'demo-fr', name: 'Термометр бар', room: 'Бар', props: { temperature: { v: 4.3, at: Date.now() }, humidity: { v: 62, at: Date.now() } } }, { id: 'demo-co2', name: 'Датчик воздуха', room: 'Зал', props: { co2_level: { v: 760, at: Date.now() }, temperature: { v: 22.4, at: Date.now() } } }] };
 }
+// Себестоимость в демо: цены ингредиентов по названию, цены напитков, еда со своей себестоимостью.
+// Кокосовую пасту и «Сэндвич с курицей» нарочно оставляем без цены — чтобы было видно, как это выглядит.
+function demoCosts(db) {
+  var exact = { 'плавленого сыра': ['кг', 700], 'сыр плавленый': ['шт', 15], 'хлеб': ['шт', 12], 'чай заваренный концентрат': ['л', 300], 'чая ромашки': ['л', 60], 'масала': ['кг', 2500],
+    'кваса': ['л', 120], 'тоник': ['л', 150], 'любого сока': ['л', 220], 'гранатовый сок': ['л', 380], 'сок яблочный': ['л', 160], 'щавелевого сока': ['л', 400] };
+  var rules = [[/эспрессо/, 'шт', 14], [/овсян/, 'л', 260], [/молок/, 'л', 95], [/сливк/, 'л', 330], [/сгущ/, 'кг', 380], [/сироп|карамел|ваниль/, 'л', 900],
+    [/^вода/, 'л', 0], [/^лед/, 'кг', 20], [/какао/, 'кг', 1200], [/матча/, 'кг', 6000], [/чай/, 'кг', 2500], [/шоколад/, 'кг', 1400], [/сахар/, 'кг', 90], [/соль/, 'кг', 60],
+    [/посыпк/, 'кг', 1500], [/мед/, 'кг', 900], [/кокос/, '', 0], [/паст/, 'кг', 1100], [/фильтр/, 'л', 110], [/яблок/, 'кг', 180], [/клубник/, 'кг', 650], [/банан/, 'кг', 160],
+    [/манго/, 'кг', 700], [/колбас/, 'кг', 900], [/огур/, 'кг', 400], [/соус/, 'кг', 500], [/имбир|лимон|апельсин|облепих|ягод|брусник|клюкв/, 'кг', 450], [/корица|специ|пряност/, 'кг', 2000], [/тыкв/, 'кг', 300]];
+  var same = { 'сливок': 'сливки', 'молока': 'молоко', 'льда': 'лед', 'тоника': 'тоник', 'соленой карамели': 'соленая карамель', 'вишневого сиропа': 'сироп', 'любого сиропа': 'сироп', 'любой сироп': 'сироп' };
+  var ing = {}, names = {};
+  C.ingList(db).forEach(function (x) {
+    names[x.key] = x.name;
+    if (exact[x.key]) { ing[x.key] = { name: x.name, per: exact[x.key][0], price: exact[x.key][1] }; return; }
+    for (var i = 0; i < rules.length; i++) if (rules[i][0].test(x.key)) { if (rules[i][1]) ing[x.key] = { name: x.name, per: rules[i][1], price: rules[i][2] }; return; }
+  });
+  Object.keys(same).forEach(function (k) { if (names[k] && ing[same[k]]) ing[k] = { name: names[k], same: same[k] }; });
+  var P = function (name, price) { var k = C.ingKey(name); ing[k] = { name: name, per: 'шт', price: price, kind: 'pack', man: true }; return { k: k, q: 1 }; };
+  var packs = [
+    { id: 'hot', name: 'Горячий напиток', all: [], s250: [P('Стаканчик 250', 8), P('Крышка 80', 4.5)], s350: [P('Стаканчик 350', 9), P('Крышка 90', 5)], s450: [P('Стаканчик 450', 10), { k: C.ingKey('Крышка 90'), q: 1 }] },
+    { id: 'cold', name: 'Холодный напиток', all: [P('Трубочка', 2)], s250: [], s350: [P('Холодный стакан 350', 13), P('Крышка для холодного', 5.5)], s450: [P('Холодный стакан 450', 15), { k: C.ingKey('Крышка для холодного'), q: 1 }] },
+    { id: 'dessert', name: 'Десерт', all: [P('Упаковка для десерта', 12)], s250: [], s350: [], s450: [] },
+    { id: 'pastry', name: 'Выпечка', all: [P('Пакет для выпечки', 3)], s250: [], s350: [], s450: [] }
+  ];
+  db.costs = { ing: ing, packs: packs, packDef: 'hot', map: { 'Круассан': { c: 68, p: 'pastry' }, 'Чизкейк': { c: 115, p: 'dessert' }, 'Синнабон': { c: 82, p: 'pastry' } } };
+  db.ttk.forEach(function (t) { if (t.cat === 'summer' || t.name === 'Русский тоник') t.pack = 'cold'; });
+  var base = { classic: [190, 240, 290], special: [0, 380, 450], nocoffee: [0, 350, 400] }, own = { 'Эспрессо': [150], 'Американо': [170, 210, 250], 'Фильтр кофе': [160, 190, 220], 'Флэт уайт': [230], 'Раф': [0, 360, 430], 'Какао': [220, 270, 320], 'Белый горячий шоколад': [320, 420, 520] };
+  db.ttk.forEach(function (t) {
+    var b = own[t.name] || base[t.cat] || [0, 300, 350], pr = {}, any = false;
+    ['250', '350', '450'].forEach(function (k, i) { if (t.sizes['s' + k]) { pr['s' + k] = b[i] || b[b.length - 1] || 300; any = true; } });
+    if (!any) pr.s0 = 260;
+    t.price = pr;
+  });
+  db.passTypes.forEach(function (p) { if (p.kind !== 'stamp') p.price = p.drinks >= 30 ? 5900 : 2200; });
+}
 function demoCards(db) {
   var adm = C.byId(db.staff, 'boss'), b1 = C.byId(db.staff, 'anya'), b2 = C.byId(db.staff, 'misha');
   var notes = ['', 'на овсяном', '', 'с собой', '', '', 'без сахара'];
@@ -2953,6 +3843,18 @@ function demoCards(db) {
   mk('Кирилл', '@kirill_demo', 'loyal', 6, 4, 12);
   mk('Света из соседнего офиса', '+7 900 000-00-02', 'p30', 30, 12, 25, 'Латте 450 мл');
   mk('Артём', '', 'p10', 8, 8, 20, 'Американо 350 мл');
+  // для отчёта: продление, «давно не был», «скоро сгорит», подарок по карте гостя
+  function mk2(client, phone, typeId, startAgo, ago1, renewAgo, ago2, note) {
+    var r = C.apply(db, adm, 'card.save', { card: { client: client, phone: phone, typeId: typeId, note: note || '' } }, at(startAgo, 10));
+    ago1.forEach(function (g, i) { C.apply(db, i % 2 ? b1 : b2, 'card.mark', { id: r.id, comment: '' }, at(g, 9 + (i % 9))); });
+    if (renewAgo != null) { C.apply(db, adm, 'card.renew', { id: r.id }, at(renewAgo, 11)); (ago2 || []).forEach(function (g, i) { C.apply(db, i % 2 ? b1 : b2, 'card.mark', { id: r.id, comment: '' }, at(g, 10 + (i % 8))); }); }
+    return r.id;
+  }
+  mk2('Марина', '+7 900 000-00-03', 'p10', 44, [43, 41, 38, 36, 33, 31, 29, 26, 24, 22], 20, [19, 15, 12, 8, 5, 2], 'Флэт уайт');
+  mk2('Денис', '@denis_demo', 'p30', 35, [34, 33, 31, 30, 27], null, null, 'Американо 450 мл');
+  mk2('Аня с ресепшена', '+7 900 000-00-04', 'p10', 25, [24, 20, 17, 13, 9], null, null, 'Раф');
+  var gid = mk2('Гоша', '', 'loyal', 30, [29, 22, 16, 11, 8], null, null);
+  C.apply(db, b1, 'card.gift', { id: gid, comment: '' }, at(7, 12));
 }
 
 // Счётчик нажатий: только «какая кнопка и сколько раз», без имён и без содержимого. Нужен, чтобы видеть, чем пользуются.
@@ -2978,7 +3880,16 @@ var Stats = {
 };
 setInterval(function () { Stats.flush(); }, 90000);
 document.addEventListener('visibilitychange', function () { if (document.hidden) Stats.flush(); });
-var STAT_LABELS = { 'tab:schedule': 'Вкладка «График»', 'tab:pay': 'Вкладка «Зарплата»', 'tab:ttk': 'Вкладка «ТТК»', 'tab:cards': 'Вкладка «Абонементы»', 'tab:admin': 'Вкладка «Админ»',
+var STAT_LABELS = { abcOpen: 'ABC-анализ', abcPeriod: 'ABC: период', abcBy: 'ABC: напитки/позиции', abcF: 'ABC: фильтр', abcAll: 'ABC: показать все', abcRetry: 'ABC: ещё раз',
+  staffRepOpen: 'Бариста', staffRepPeriod: 'Бариста: период', staffRepPlace: 'Бариста: точка', staffRepSort: 'Бариста: сортировка', staffRepRetry: 'Бариста: ещё раз', cashierPick: 'Кассир: открыть', cashierSet: 'Кассир: выбрать',
+  costOpen: 'Себестоимость', costPeriod: 'Себестоимость: период', costRetry: 'Себестоимость: ещё раз', costAll: 'Себестоимость: все', costIngOpen: 'Цены ингредиентов', costIngEdit: 'Ингредиент: открыть', costIngPer: 'Ингредиент: единица', costIngSave: 'Ингредиент: сохранить', costIngClear: 'Ингредиент: убрать цену',
+  costMenuOpen: 'Себестоимость напитков', costTtkOpen: 'Себестоимость: напиток', costTtkSize: 'Себестоимость: размер', costPriceSave: 'Цена продажи: сохранить', costMapOpen: 'Позиция кассы: открыть', costMapSave: 'Позиция кассы: сохранить', costOwnSave: 'Своя себестоимость: сохранить', kitTab: 'Конструктор: вкладка', kitSort: 'Конструктор: сортировка', pickSel: 'Выбор ингредиента', pickNew: 'Выбор: создать новый', costUnmerge: 'Ингредиент: разъединить', costMergeOpen: 'Ингредиент: объединить',
+  rcDel: 'Состав: убрать', rcAdd: 'Состав: добавить', rcReset: 'Состав: как в ТТК', rcToTtk: 'Состав: записать в ТТК', costIngTab: 'Ингредиенты: продукты/упаковка', costIngNew: 'Ингредиент: новый', costIngDel: 'Ингредиент: удалить', packStarter: 'Упаковка: стандартные наборы',
+  packEdit: 'Набор упаковки: открыть', packItemAdd: 'Набор: добавить', packItemDel: 'Набор: убрать', packSave: 'Набор: сохранить', packDel: 'Набор: удалить', packDefault: 'Набор: по умолчанию', packDrinks: 'Набор: напитки', packPick: 'Набор: напиток', packPickCat: 'Набор: раздел', packDrinksSave: 'Набор: сохранить напитки',
+  costTtkPack: 'Напиток: набор упаковки', costAddDel: 'Напиток: убрать ингредиент', costAddOpen: 'Напиток: добавить ингредиент', costAddWhere: 'Добавить: размеры', costAddPick: 'Добавить: выбор', costIngNewForAdd: 'Добавить: новый продукт', costAddSave: 'Добавить: сохранить',
+  cardsRepOpen: 'Отчёт по абонементам', cardsRepMonth: 'Абонементы: месяц', cardRepOpen: 'Абонементы: карта из отчёта', repBack: 'Отчёт: назад', msumOpen: 'Итоги месяца', msumMonth: 'Итоги месяца: листать', planEdit: 'План выручки: открыть', planSave: 'План выручки: сохранить', planCancel: 'План выручки: отмена',
+  loadOpen: 'Загрузка по часам', loadPeriod: 'Загрузка: период', loadPlace: 'Загрузка: точка', loadMetric: 'Загрузка: что показывать', loadCell: 'Загрузка: клетка', loadRetry: 'Загрузка: ещё раз',
+  dayRepOpen: 'Итоги дня', dayRepSend: 'Итоги дня: прислать', dayRepTog: 'Итоги дня: вкл/выкл', dayRepAt: 'Итоги дня: время', dayRepSettings: 'Итоги дня: настройки', 'tab:schedule': 'Вкладка «График»', 'tab:pay': 'Вкладка «Зарплата»', 'tab:ttk': 'Вкладка «ТТК»', 'tab:cards': 'Вкладка «Абонементы»', 'tab:admin': 'Вкладка «Админ»',
   day: 'Открыть день в графике', shiftNew: 'Добавить смену', shiftEdit: 'Открыть смену', shiftSave: 'Сохранить смену', shiftDel: 'Удалить смену', shiftApprove: 'Подтвердить вторую смену', approveId: 'Подтвердить вторую смену (из списка)', review: 'Смены на проверке',
   month: 'Листать месяц', calMode: 'Календарь / таблица', who: 'Мои смены / вся команда', calendar: 'Смены в мой календарь', calGoogle: 'Календарь: Google', calApple: 'Календарь: iPhone', calCopy: 'Календарь: скопировать ссылку', calOpen: 'Календарь: файл',
   revEdit: 'Внести выручку', revSave: 'Сохранить выручку', cashNew: 'ДДС: новая запись', cashEdit: 'ДДС: открыть запись', cashSave: 'ДДС: сохранить', choreDone: 'Отметить дело сделанным', choreUndo: 'Снять отметку дела',
@@ -3262,7 +4173,7 @@ function vPay() {
       (revM.length ? '<div class="list mt">' + revM.map(function (r) { return '<button class="li" data-a="revEdit" data-date="' + r.date + '" data-id="' + r.placeId + '"><span class="em-ico">' + I('cash') + '</span><div class="main-t"><b>' + dayShort(r.date) + '</b><small>' + (multi() ? esc(placeName(r.placeId)) + ', ' : '') + '' + (r.src === 'aqsi' ? '' : 'внёс ') + esc(revBy(r)) + '</small></div><div class="end">' + money(r.amount) + '</div></button>'; }).join('') + '</div>' : '<div class="empty">В этом месяце выручку ещё не вносили. Её вносят из графика: нажми на день.</div>') +
       ((C.aqsiOn(S.db) || MODE === 'demo') ? '<button class="btn wide mt" data-a="salesOpen">' + I('chart') + ' Продажи по позициям</button>' : '') +
       '<button class="btn wide mt" data-a="revEdit" data-date="' + todayISO() + '" data-id="' + places()[0].id + '">+ Внести или исправить выручку за любой день</button>', revTot ? money(revTot) : '', 'по дням, внести или исправить');
-    return statCells() + sec('payteam', I('coin'), 'Зарплата команды', head + '<div class="list mt">' + (rows || '<div class="empty">В этом месяце смен нет.</div>') + '</div>' +
+    return statCells() + repNav() + sec('payteam', I('coin'), 'Зарплата команды', head + '<div class="list mt">' + (rows || '<div class="empty">В этом месяце смен нет.</div>') + '</div>' +
       '<button class="btn wide mt ' + (locked ? 'green' : '') + '" data-a="lockMonth" data-v="' + (locked ? 0 : 1) + '">' + (locked ? I('unlock') + ' Открыть месяц для правок' : I('lock') + ' Закрыть месяц') + '</button><div class="hint mt" style="text-align:center">В закрытом месяце бариста не могут менять свои часы.</div>', money(tot.toPay), 'к выдаче, начислено, премии и выплаты') + revSec + salesRow + cashSec();
   }
   return sec('paymine', I('coin'), 'Моя зарплата', monthBar() + payBlock(S.me.id, false)) + cashSec();
@@ -3303,7 +4214,7 @@ function vTTK() {
   var cats = S.db.ttkCats;
   var h = '<div class="search">' + I('search') + '<input class="in" type="search" placeholder="Найти напиток или ингредиент" value="' + esc(S.ttkQ) + '" data-in="ttkQ" enterkeyhint="search"></div>';
   h += '<div id="ttk-list">' + ttkList() + '</div>';
-  if (isAdmin()) h += '<div class="row mt"><button class="btn main grow" data-a="ttkNew">+ Напиток</button><button class="btn grow" data-a="cats">Разделы</button></div>';
+  if (isAdmin()) h += '<div class="row mt"><button class="btn main grow" data-a="ttkNew">+ Напиток</button><button class="btn grow" data-a="cats">Разделы</button></div><button class="btn wide mt" data-a="costMenuOpen">' + I('coin') + ' Себестоимость напитков</button>';
   return h;
 }
 function ttkMatch(t, q) {
@@ -3347,6 +4258,7 @@ function vCards() {
     return '<button class="chip' + (S.cardFilter === f[0] ? ' on' : '') + '" data-a="cardFilter" data-v="' + f[0] + '">' + f[1] + ' ' + n + '</button>';
   }).join('') + '</div>';
   if (canNew) h += '<button class="btn main wide" data-a="cardNew" style="margin:4px 0 12px">+ Оформить абонемент</button>';
+  if (isAdmin() && S.db.cards.length) h += '<button class="btn wide" data-a="cardsRepOpen" style="margin:0 0 12px">' + I('chart') + ' Отчёт по абонементам</button>';
   h += '<div id="cards-list">' + cardsList() + '</div>';
   return h;
 }
@@ -3422,6 +4334,10 @@ function vAdmin() {
     '<h3>Свои вопросы</h3>' + ((db.quizQ || []).filter(function (q) { return q.kind !== 'san'; }).length ? '<div class="list">' + db.quizQ.filter(function (q) { return q.kind !== 'san'; }).map(function (q) { return '<button class="li" data-a="quizQEdit" data-id="' + q.id + '"><span class="em-ico">' + I('pencil') + '</span><div class="main-t"><b>' + esc(q.q) + '</b><small>ответ: ' + esc(q.opts[0]) + '</small></div></button>'; }).join('') + '</div>' : '<div class="note">Пока нет. Добавь вопросы про сервис, кассу или стандарты — они попадут в тест вместе с вопросами по ТТК.</div>') +
     '<div class="row mt" style="gap:8px"><button class="btn wide" data-a="quizQNew">+ Вопрос</button><button class="btn wide" data-a="quizTeam">Результаты</button></div>', (db.quizQ || []).length || '');
   h += sec('ad-export', I('book'), 'Выгрузка в таблицу', '<div class="note">' + (MODE === 'demo' ? 'В рабочей версии данные выгружаются в Google-таблицу кофейни. В демо можно скачать файлы для Excel.' : 'Смены, зарплата, выручка, ДДС, абонементы, дела и аттестация — отдельными листами в Google-таблице кофейни.') + '</div><button class="btn wide mt main" data-a="exportOpen">' + (MODE === 'demo' ? 'Скачать файлы' : 'Выгрузить данные') + '</button>');
+  var drs = db.settings.dayReport || {}, drOn = drs.on !== false, drAt = drs.at || '21:00';
+  h += sec('ad-dayrep', I('cup'), 'Итоги дня в Telegram', '<button class="tog' + (drOn ? ' on' : '') + '" data-a="dayRepTog"><div><b>Присылать итоги дня</b><div class="hint">Выручка, чеки и средний чек, план месяца, кто работал, проверки ХАССП и дела. Приходит админам, у которых в профиле включены уведомления</div></div><span class="sw"></span></button>' +
+    (drOn ? '<div class="field mt"><span>Во сколько</span><div class="chips">' + ['19:00', '20:00', '20:30', '21:00', '22:00', '23:00'].map(function (x) { return '<button class="chip' + (x === drAt ? ' on' : '') + '" data-a="dayRepAt" data-v="' + x + '">' + x + '</button>'; }).join('') + '</div></div>' : '') +
+    '<button class="btn wide mt" data-a="dayRepOpen">Посмотреть, как выглядит</button>', drOn ? drAt : 'выкл');
   h += sec('ad-stats', I('search'), 'Статистика нажатий', '<div class="note">Приложение считает, какие кнопки нажимают чаще всего — без имён. По этому видно, что вынести на видное место, а что убрать.</div><button class="btn wide mt" data-a="stats">Показать, что нажимают</button>');
   h += sec('ad-pass', I('ticket'), 'Виды абонементов', '<div class="list">' + db.passTypes.map(function (p) {
     return '<button class="li" data-a="passEdit" data-id="' + p.id + '"><span class="em-ico">' + (p.kind === 'stamp' ? I('gift') : I('ticket')) + '</span><div class="main-t"><b>' + esc(p.name) + '</b><small>' + (p.kind === 'stamp' ? 'карта гостя: ' + p.drinks + '-й в подарок' : 'по умолчанию ' + p.drinks + ' ' + plural(p.drinks, F_DRINKS) + (p.days ? ', ' + p.days + ' дней' : ', без срока')) + '</small></div></button>';
@@ -3538,7 +4454,7 @@ function vMenu() {
 var SET_GROUPS = [
   ['g-team', 'team', 'Команда и права', ['ad-team', 'ad-perm'], 'сотрудники, коды входа, права бариста'],
   ['g-cafe', 'shop', 'Кофейня, часы и точки', ['ad-cafe', 'ad-shifts', 'ad-places'], 'название, часы работы, точки'],
-  ['g-money', 'cash', 'Деньги и касса', ['ad-sales', 'ad-aqsi', 'ad-export'], 'процент с продаж, касса aQsi, выгрузка в таблицу'],
+  ['g-money', 'cash', 'Деньги и касса', ['ad-sales', 'ad-aqsi', 'ad-dayrep', 'ad-export'], 'процент с продаж, касса aQsi, итоги дня, выгрузка'],
   ['g-haccp', 'shield', 'ХАССП', ['hc-req', 'hc-cps', 'hc-ya', 'hc-set'], 'точки контроля, датчики, сроки медкнижек'],
   ['g-menu', 'book', 'Меню и аттестация', ['ad-quiz'], 'тест по меню и свои вопросы'],
   ['g-pass', 'ticket', 'Абонементы', ['ad-pass'], 'виды абонементов и карта гостя'],
@@ -4114,6 +5030,7 @@ function demoSales(from, to, place) {
   var drinks = (S.db.ttk || []).filter(function (t) { return !t.hidden && t.name; }).slice(0, 12).map(function (t) { return t.name; });
   if (drinks.length < 4) drinks = ['Капучино', 'Латте', 'Американо', 'Раф', 'Флэт уайт', 'Какао'];
   var hot = /капуч|латте|американо|флэт|раф/i; drinks.sort(function (x, y) { return (hot.test(y) ? 1 : 0) - (hot.test(x) ? 1 : 0); });
+  var tinfo = {}; (S.db.ttk || []).forEach(function (t) { tinfo[t.name] = t; });
   var food = [['Круассан', 190], ['Чизкейк', 290], ['Синнабон', 240], ['Сэндвич с курицей', 350]], mods = ['Сироп', 'Растительное молоко', 'Доп. шот'];
   var team = S.db.staff.filter(function (s) { return s.active !== false && s.role !== 'admin'; }).map(function (s) { return s.name; }).slice(0, 4);
   if (!team.length) team = ['Касса'];
@@ -4122,18 +5039,23 @@ function demoSales(from, to, place) {
   (place ? [place] : places().map(function (p) { return p.id; })).forEach(function (pid, pi) {
     var rows = [], scale = pi ? 0.6 : 1;
     for (var d = from, guard = 0; d <= to && guard < 400; d = C.addDays(d, 1), guard++) {
+      var dayShifts = S.db.shifts.filter(function (x) { return x.date === d && !x.check; });
       var rnd = demoRnd(d + pid), wd = C.dayIndex(d), checks = Math.round((58 + (wd >= 5 ? 22 : 0)) * (0.8 + rnd() * 0.4) * scale);
       for (var i = 0; i < checks; i++) {
         var pick = rnd() * hsum, hour = 8; for (var j = 0; j < hw.length; j++) { pick -= hw[j][1]; if (pick <= 0) { hour = hw[j][0]; break; } }
         if (d === today && hour > now.getHours()) continue;
+        var dhw = C.dayHours(S.db, d); if (dhw && (hour < +dhw.open.slice(0, 2) || hour >= +dhw.close.slice(0, 2))) continue;   // только в часы работы
         var pos = [], k = 1 + (rnd() < 0.3 ? 1 : 0) + (rnd() < 0.07 ? 1 : 0);
         for (var m = 0; m < k; m++) {
           if (m && rnd() < 0.55) { var f = food[Math.floor(rnd() * rnd() * food.length)]; pos.push({ text: f[0], price: f[1], priceBrutto: f[1], quantity: 1, modifyOptions: [] }); continue; }
-          var di = Math.floor(rnd() * rnd() * drinks.length), price = 200 + (di % 5) * 30;
-          pos.push({ text: drinks[di], price: price, priceBrutto: price, quantity: 1, modifyOptions: rnd() < 0.18 ? [{ name: mods[Math.floor(rnd() * mods.length)] }] : [] });
+          var di = Math.floor(rnd() * rnd() * drinks.length), dt = tinfo[drinks[di]], szs = dt ? ['250', '350', '450'].filter(function (k2) { return dt.sizes['s' + k2]; }) : [];
+          var sz = szs.length ? szs[Math.min(szs.length - 1, Math.floor(rnd() * 2.2 + (szs.length > 2 ? 0.4 : 0)))] : '', price = (dt && dt.price && dt.price['s' + sz]) || 200 + (di % 5) * 30;
+          pos.push({ text: drinks[di] + (szs.length > 1 ? ' ' + sz : ''), price: price, priceBrutto: price, quantity: 1, modifyOptions: rnd() < 0.18 ? [{ name: mods[Math.floor(rnd() * mods.length)] }] : [] });
         }
         var amount = 0; pos.forEach(function (x) { amount += x.price; });
-        rows.push({ id: pid + d + '-' + i, processedAt: d + 'T' + pad(hour) + ':' + pad(Math.floor(rnd() * 60)) + ':00', amount: amount, cashier: { name: team[(i + wd) % team.length] },
+        var onSh = dayShifts.filter(function (x) { return C.toMin(x.from) <= hour * 60 + 30 && C.toMin(x.to) > hour * 60 + 30; });
+        var cashier = onSh.length ? ((staff(onSh[Math.floor(rnd() * onSh.length)].staffId) || {}).name || team[0]) : team[(i + wd) % team.length];
+        rows.push({ id: pid + d + '-' + i, processedAt: d + 'T' + pad(hour) + ':' + pad(Math.floor(rnd() * 60)) + ':00', amount: amount, cashier: { name: cashier },
           content: { type: rnd() < 0.008 ? 2 : 1, positions: pos, checkClose: { payments: [rnd() < 0.8 ? { type: 2, amount: amount, acquiringData: {} } : { type: 1, amount: amount }] } } });
       }
     }
@@ -4437,6 +5359,7 @@ SHEETS.passEdit = function (a) {
   h += '<label class="field"><span>Название</span><input class="in" name="name" maxlength="50" value="' + esc(p.name || '') + '"></label>';
   h += '<div class="field"><span>Как работает</span>' + seg([['prepaid', I('ticket') + ' Оплачен заранее'], ['stamp', I('gift') + ' N-й в подарок']], p.kind, 'pickPassKind') + '<input type="hidden" name="kind" value="' + p.kind + '"></div>';
   h += '<div class="row"><label class="field grow"><span>' + (p.kind === 'stamp' ? 'Каждый N-й' : 'Напитков по умолчанию') + '</span><input class="in" name="drinks" inputmode="numeric" value="' + (p.drinks || '') + '"></label>' + (p.kind === 'stamp' ? '' : '<label class="field grow"><span>Дней (0 — без срока)</span><input class="in" name="days" inputmode="numeric" value="' + (p.days || 0) + '"></label>') + '</div>';
+  if (p.kind !== 'stamp') h += '<label class="field"><span>Цена, ₽</span><input class="in" name="price" inputmode="numeric" value="' + (p.price || '') + '" placeholder="Например: 2200"></label><div class="hint" style="margin:-4px 0 10px">Для отчёта: сколько продано на деньги и сколько напитков гостям ещё должны.</div>';
   if (p.kind === 'stamp') h += '<label class="field"><span>Подарок</span><input class="in" name="reward" maxlength="80" value="' + esc(p.reward || '') + '" placeholder="Например: любой напиток 350 мл"></label>';
   h += '<div class="field"><span>Цвет</span><div class="color-row">' + COLORS.map(function (c) { return '<button class="' + (c === p.color ? 'on' : '') + '" style="--c:' + c + '" data-a="pickColor" data-v="' + c + '" aria-label="Цвет"></button>'; }).join('') + '</div><input type="hidden" name="color" value="' + esc(p.color || COLORS[0]) + '"></div>';
   h += '<button class="btn main wide big" data-a="passSave">Сохранить</button>' + (a.isNew ? '' : '<button class="btn danger wide mt" data-a="passDel">Удалить вид</button><div class="hint mt">Уже оформленные абонементы этого вида останутся.</div>');
@@ -4496,6 +5419,822 @@ var CH = {};
 H.close = function () { closeSheet(); };
 H.dlgNo = function () { var d = document.getElementById('dlg'); d.className = ''; d.innerHTML = ''; ASK = null; };
 H.dlgYes = function () { var f = ASK; H.dlgNo(); if (f) f(); };
+
+// ---------- отчёты: итоги месяца, загрузка по часам, итоги дня ----------
+function repNav() {
+  var ms = C.monthSum(S.db, curMonth(), todayISO());
+  return '<h3 class="rep-h">Деньги</h3>' + navRow('msum', I('chart'), 'Итоги месяца', ms.plan ? Math.round(ms.rev / ms.plan * 100) + '%' : '', ms.plan ? 'план ' + grp(ms.plan) + ' ₽, прогноз ' + grp(ms.forecast) + ' ₽' : 'выручка, зарплата, расходы и план', 'msumOpen') +
+    navRow('dayrep', I('cup'), 'Итоги дня', '', 'то, что вечером приходит в Telegram', 'dayRepOpen') +
+    navRow('cost', I('coin'), 'Себестоимость', '', 'фудкост и валовая прибыль по ТТК', 'costOpen') +
+    '<h3 class="rep-h">Продажи и гости</h3>' +
+    navRow('load', I('clock'), 'Загрузка по часам', '', 'когда больше гостей и хватает ли людей', 'loadOpen') +
+    navRow('abc', I('star'), 'ABC-анализ меню', '', 'что приносит деньги, а что занимает место', 'abcOpen') +
+    navRow('staffrep', I('team'), 'Бариста', '', 'выручка, средний чек и добавки по людям', 'staffRepOpen') +
+    navRow('cardsrep', I('ticket'), 'Абонементы', '', 'продажи, визиты и сколько напитков должны гостям', 'cardsRepOpen');
+}
+function pctTxt(d) { return (d > 0 ? '+' : d < 0 ? '−' : '') + Math.abs(d) + '%'; }
+function revUpTo(month, day) { var n = 0; (S.db.revenue || []).forEach(function (r) { if (C.monthOf(r.date) === month && +r.date.slice(8) <= day) n += r.amount || 0; }); return n; }
+
+// --- итоги месяца ---
+H.msumOpen = function () { openSheet('msum', { month: curMonth() }); };
+H.msumMonth = function (d) { var a = S.sheet.args, m = monthShift(a.month, +d.d); if (m > curMonth()) return; a.month = m; a.edit = false; renderSheet(); };
+H.planEdit = function () { S.sheet.args.edit = true; renderSheet(); setTimeout(function () { var el = document.querySelector('#sheet [name="plan"]'); if (el) el.focus(); }, 80); };
+H.planCancel = function () { S.sheet.args.edit = false; renderSheet(); };
+H.planSave = function () {
+  var a = S.sheet.args, raw = String(v('plan')).replace(/\s/g, '').replace(',', '.');
+  if (raw !== '' && !(parseFloat(raw) >= 0)) { toast('План — это число, например 1 500 000', 'err'); return; }
+  var amount = raw === '' ? 0 : parseFloat(raw);
+  if (act('plan.set', { month: a.month, amount: amount })) { a.edit = false; haptic('ok'); toast(amount ? 'План сохранён' : 'План убран', 'ok'); renderSheet(); }
+};
+function plRow(t, n, sign, sub) { return '<div class="li"><div class="main-t"><b>' + t + '</b>' + (sub ? '<small class="wrap">' + sub + '</small>' : '') + '</div><div class="end">' + (n ? sign + ' ' : '') + grp(n) + ' ₽</div></div>'; }
+SHEETS.msum = function (a) {
+  var t = todayISO(), m = a.month, o = C.monthSum(S.db, m, t), pm = monthShift(m, -1), p = C.monthSum(S.db, pm, t);
+  var h = shHead('Итоги месяца', o.cur ? 'на ' + dayShort(t) : 'месяц закончился');
+  h += '<div class="monthbar"><button class="arrow l" data-a="msumMonth" data-d="-1" aria-label="Предыдущий месяц"></button><b>' + monthName(m) + '</b><button class="arrow r" data-a="msumMonth" data-d="1" aria-label="Следующий месяц"' + (m >= curMonth() ? ' disabled style="opacity:.35"' : '') + '></button></div>';
+  h += '<div class="bigkassa"><b>' + money(o.result) + '</b><small>' + (o.cur ? 'заработано на сегодня' : 'результат месяца') + '</small></div>';
+  var cats = o.cats.slice(0, 3).map(function (c) { return c.cat.toLowerCase(); }).join(', ') + (o.cats.length > 3 ? ' и др.' : '');
+  h += '<div class="list">' +
+    plRow('Выручка', o.rev, '+', o.days ? o.days + ' ' + plural(o.days, ['день', 'дня', 'дней']) + ' с выручкой' : 'выручку ещё не вносили') +
+    (o.inc ? plRow('Прочие поступления', o.inc, '+', 'приход в «Движении денег», кроме внесения в кассу') : '') +
+    plRow('Зарплата команды', o.pay.total, '−', hrs(o.pay.hours) + ' ч по графику' + (o.cur && o.pay.forecast > o.pay.total ? ', к концу месяца ≈ ' + money(o.pay.forecast) : '')) +
+    plRow('Расходы', o.out, '−', o.cats.length ? cats : 'в «Движении денег» расходов нет') +
+    '</div>';
+  if (o.rev > 0) h += '<div class="note mt">Зарплата — <b>' + String(o.fotPct).replace('.', ',') + '%</b> выручки' + (p.rev > 0 ? ' (в прошлом месяце ' + String(p.fotPct).replace('.', ',') + '%)' : '') + '.</div>';
+  // план
+  var pct = o.plan ? Math.round(o.rev / o.plan * 100) : 0, fpct = o.plan ? Math.round(o.forecast / o.plan * 100) : 0;
+  h += '<h3>План выручки</h3>';
+  if (a.edit) h += '<label class="field"><span>План на ' + esc(monthName(m).toLowerCase()) + ', ₽</span><input class="in" name="plan" inputmode="numeric" placeholder="Например: 1500000" value="' + (o.plan || '') + '"></label>' +
+    '<div class="hint">План действует и на следующие месяцы, пока не поменяешь. Сотри число — план уберётся.</div><div class="row mt" style="gap:8px"><button class="btn main grow" data-a="planSave">Сохранить</button><button class="btn grow" data-a="planCancel">Отмена</button></div>';
+  else if (o.plan) h += '<div class="row" style="align-items:center"><div class="grow"><b>' + pct + '% плана</b><div class="note">' + money(o.rev) + ' из ' + money(o.plan) + '</div></div>' + (isAdmin() ? '<button class="btn sm" data-a="planEdit">Изменить</button>' : '') + '</div>' +
+    '<div class="bar" style="margin:10px 0 4px"><i style="width:' + Math.min(100, pct) + '%"></i></div>' +
+    (o.cur ? '<div class="note mt">Прогноз на конец месяца: <b>' + money(o.forecast) + '</b> — ' + fpct + '% плана' + (o.forecast < o.plan ? ', не хватит ' + money(o.plan - o.forecast) : '') + '.</div><div class="hint">Прогноз: уже полученная выручка плюс средняя выручка в эти дни недели за последние 8 недель.</div>' : '');
+  else h += '<div class="note">План не задан.' + (o.cur && o.forecast ? ' Прогноз на конец месяца: <b>' + money(o.forecast) + '</b>.' : '') + '</div>' + (isAdmin() ? '<button class="btn wide mt" data-a="planEdit">Задать план</button>' : '');
+  // сравнение
+  var cut = o.cur ? +t.slice(8) : 31, prevRev = revUpTo(pm, cut);
+  if (prevRev > 0 || p.result) {
+    h += '<h3>Сравнение с прошлым месяцем</h3><div class="note">' + (o.cur ? 'Выручка с 1 по ' + cut + ' число: ' : 'Выручка за месяц: ') + '<b>' + money(o.rev) + '</b>' +
+      (prevRev > 0 ? ' — ' + pctTxt(Math.round((o.rev - prevRev) / prevRev * 100)) + ' к ' + money(prevRev) + ' за ' + (o.cur ? 'те же дни' : 'прошлый месяц') : '') + '.</div>' +
+      (p.days ? '<div class="note mt">' + esc(monthName(pm)) + ' целиком: выручка ' + money(p.rev) + ', зарплата ' + money(p.pay.total) + ', расходы ' + money(p.out) + ', результат <b>' + money(p.result) + '</b>.</div>' : '');
+  }
+  if (multi() && o.rev > 0) h += '<h3>По точкам</h3><div class="list">' + places().map(function (pl) { return plRow(esc(pl.name), o.byPlace[pl.id] || 0, '', 'выручка'); }).join('') + '</div>';
+  if (o.cats.length) {
+    var top = o.cats[0].s || 1;
+    h += '<h3>Расходы по статьям</h3><div class="list">' + o.cats.map(function (c) {
+      return '<div class="li" style="display:block"><div class="row"><div class="grow"><b>' + esc(c.cat) + '</b></div><b>' + money(c.s) + '</b></div><div class="bar" style="margin:6px 0 2px"><i style="width:' + Math.max(2, Math.round(c.s / top * 100)) + '%"></i></div></div>';
+    }).join('') + '</div>';
+  }
+  h += '<div class="hint mt">Расходы — по записям в «Движении денег»: что не внесено, в итог не попадёт.' + (o.salaryCash ? ' Выдача зарплаты из «Движения денег» (' + money(o.salaryCash) + ') второй раз не вычитается: зарплата считается по графику и часам.' : '') + '</div>';
+  return h;
+};
+
+// --- загрузка по часам ---
+var LOAD_PERIODS = [['28', '4 недели'], ['56', '8 недель'], ['prev', 'Прошлый месяц']];
+var WD_S = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+function loadRange(p) { if (p === 'prev') return salesRange('prev'); var y = C.addDays(todayISO(), -1); return [C.addDays(y, -((+p || 28) - 1)), y]; }
+H.loadOpen = function () { openSheet('load', { period: '28', place: '', metric: 'per', sel: '' }); loadFetch(); };
+H.loadPeriod = function (d) { var a = S.sheet.args; a.period = d.v; a.sel = ''; loadFetch(); };
+H.loadPlace = function (d) { var a = S.sheet.args; a.place = d.v || ''; a.sel = ''; loadFetch(); };
+H.loadMetric = function (d) { S.sheet.args.metric = d.v; renderSheet(); };
+H.loadCell = function (d) { var a = S.sheet.args; a.sel = a.sel === d.v ? '' : d.v; renderSheet(); };
+H.loadRetry = function () { loadFetch(); };
+function loadFetch() {
+  var a = S.sheet && S.sheet.type === 'load' ? S.sheet.args : null; if (!a) return;
+  a.err = '';
+  if (MODE !== 'demo' && !C.aqsiOn(S.db)) { a.rep = false; renderSheet(); return; }
+  var rg = loadRange(a.period), key = rg.join('|') + '|' + a.place, hit = (S.salesCache = S.salesCache || {})[key];
+  a.key = key;
+  if (hit && hit.rep && hit.rep.wh && Date.now() - hit.at < 300000) { a.rep = hit.rep; renderSheet(); return; }
+  a.rep = null; renderSheet();
+  var done = function (j) {
+    S.salesCache[key] = { rep: j.report, since: j.since || '', at: Date.now() };
+    if (S.sheet && S.sheet.args === a && a.key === key) { a.rep = j.report; renderSheet(); }
+  };
+  if (MODE === 'demo') { done(demoSales(rg[0], rg[1], a.place)); return; }
+  Remote.call({ op: 'sales', from: rg[0], to: rg[1], place: a.place }).then(function (j) { if (j.needLogin) { webLost(); return; } done(j); },
+    function (e) { if (S.sheet && S.sheet.args === a && a.key === key) { a.err = e.message || 'Не получилось загрузить продажи'; renderSheet(); } });
+}
+// Сколько человек в среднем стоит на смене в каждый час дня недели (за дни, когда были продажи).
+function staffGrid(from, to, place, days) {
+  var sum = [], cnt = [0, 0, 0, 0, 0, 0, 0], w, hh;
+  for (w = 0; w < 7; w++) { sum.push([]); for (hh = 0; hh < 24; hh++) sum[w].push(0); }
+  Object.keys(days).forEach(function (d) { if (d >= from && d <= to) cnt[C.dayIndex(d)]++; });
+  S.db.shifts.forEach(function (x) {
+    if (x.date < from || x.date > to || !days[x.date] || x.check || (place && C.placeOf(S.db, x) !== place)) return;
+    var a = C.toMin(x.from), b = C.toMin(x.to), wd = C.dayIndex(x.date); if (b <= a) b += 1440;
+    for (var k = Math.floor(a / 60); k * 60 < b && k < 24; k++) { var ov = Math.min(b, (k + 1) * 60) - Math.max(a, k * 60); if (ov > 0) sum[wd][k] += ov / 60; }
+  });
+  return sum.map(function (row, i) { return row.map(function (x) { return cnt[i] ? x / cnt[i] : 0; }); });
+}
+function n1(x) { return String(Math.round(x * 10) / 10).replace('.', ','); }
+function peopleTxt(x) { var r = Math.round(x * 10) / 10; return n1(r) + ' ' + (r % 1 ? 'человека' : plural(r, ['человек', 'человека', 'человек'])); }
+// Выручка на час работы по дням недели — из выручки и графика, работает и без кассы.
+function loadWeekdays(rg, place) {
+  var rev = [0, 0, 0, 0, 0, 0, 0], hrsW = [0, 0, 0, 0, 0, 0, 0], days = [{}, {}, {}, {}, {}, {}, {}];
+  (S.db.revenue || []).forEach(function (r) { if (r.date < rg[0] || r.date > rg[1] || (place && r.placeId !== place)) return; var w = C.dayIndex(r.date); rev[w] += r.amount || 0; days[w][r.date] = 1; });
+  S.db.shifts.forEach(function (x) {
+    if (x.date < rg[0] || x.date > rg[1] || x.check || (place && C.placeOf(S.db, x) !== place)) return;
+    var w = C.dayIndex(x.date); if (!days[w][x.date]) return;
+    hrsW[w] += x.hours != null ? x.hours : C.plannedHours(x, S.db);
+  });
+  var rows = [0, 1, 2, 3, 4, 5, 6].map(function (w) { var n = Object.keys(days[w]).length; return { w: w, n: n, rev: n ? rev[w] / n : 0, hours: n ? hrsW[w] / n : 0, per: hrsW[w] ? rev[w] / hrsW[w] : 0 }; });
+  var max = 0; rows.forEach(function (x) { if (x.per > max) max = x.per; });
+  if (!max) return '<h3>Выручка на час работы</h3><div class="note">За этот период нет выручки и смен в одни и те же дни.</div>';
+  return '<h3>Выручка на час работы по дням недели</h3><div class="hint" style="margin-bottom:8px">Средняя выручка дня, делённая на отработанные часы команды. Чем ниже — тем дороже обходится этот день.</div><div class="list">' + rows.map(function (x) {
+    return '<div class="li" style="display:block"><div class="row"><div class="grow"><b>' + WD_FULL[x.w].charAt(0).toUpperCase() + WD_FULL[x.w].slice(1) + '</b></div><b>' + (x.per ? money(x.per) : '—') + '</b></div><div class="bar" style="margin:6px 0 4px"><i style="width:' + (x.per ? Math.max(2, Math.round(x.per / max * 100)) : 0) + '%"></i></div>' +
+      '<small class="note">' + (x.n ? 'выручка ' + money(x.rev) + ' · ' + hrs(Math.round(x.hours * 10) / 10) + ' ч работы · ' + x.n + ' ' + plural(x.n, ['день', 'дня', 'дней']) : 'нет данных') + '</small></div>';
+  }).join('') + '</div>';
+}
+SHEETS.load = function (a) {
+  var rg = loadRange(a.period), h = shHead('Загрузка по часам', dayShort(rg[0]) + ' – ' + dayShort(rg[1]) + (MODE === 'demo' ? ' · пример с выдуманными цифрами' : ''));
+  h += '<div class="chips">' + LOAD_PERIODS.map(function (p) { return '<button class="chip' + (a.period === p[0] ? ' on' : '') + '" data-a="loadPeriod" data-v="' + p[0] + '">' + p[1] + '</button>'; }).join('') + '</div>';
+  if (multi()) h += '<div class="chips">' + [['', 'Все точки']].concat(places().map(function (pl) { return [pl.id, pl.name]; })).map(function (p) { return '<button class="chip' + (a.place === p[0] ? ' on' : '') + '" data-a="loadPlace" data-v="' + esc(p[0]) + '">' + esc(p[1]) + '</button>'; }).join('') + '</div>';
+  var wdBlock = loadWeekdays(rg, a.place);
+  if (a.err) return h + '<div class="warn mt">' + I('warn') + ' ' + esc(a.err) + '</div><button class="btn wide mt" data-a="loadRetry">Попробовать ещё раз</button>' + wdBlock;
+  if (a.rep === false) return h + '<div class="note mt">Почасовую карту строю по чекам кассы aQsi — её можно подключить в настройках «Деньги и касса». По дням недели видно уже сейчас:</div>' + wdBlock;
+  if (!a.rep) return h + '<div class="note mt">Загружаю…</div>';
+  var r = a.rep, days = {}; (r.byDay || []).forEach(function (x) { days[x.day] = 1; });
+  if (!r.byDay || !r.byDay.length || !r.wh) return h + '<div class="empty">За этот период чеков нет.</div>' + wdBlock;
+  var st = staffGrid(rg[0], rg[1], a.place, days), N = [], Sm = [], w, k;
+  for (w = 0; w < 7; w++) { N.push([]); Sm.push([]); for (k = 0; k < 24; k++) { N[w].push(0); Sm[w].push(0); } (r.wh[w] || []).forEach(function (x) { N[w][x.h] = x.n; Sm[w][x.h] = x.s; }); }
+  var h0 = 24, h1 = -1;
+  for (w = 0; w < 7; w++) for (k = 0; k < 24; k++) if (N[w][k] >= 0.2 || st[w][k] >= 0.2) { if (k < h0) h0 = k; if (k > h1) h1 = k; }
+  if (h1 < 0) return h + '<div class="empty">За этот период чеков нет.</div>' + wdBlock;
+  // чеков на человека в час; середина — по клеткам, где и люди, и гости
+  var per = function (w, k) { return st[w][k] >= 0.25 ? N[w][k] / st[w][k] : null; }, vals = [];
+  for (w = 0; w < 7; w++) for (k = h0; k <= h1; k++) { var pv = per(w, k); if (pv != null && N[w][k] >= 0.5) vals.push(pv); }
+  vals.sort(function (x, y) { return x - y; });
+  var med = vals.length ? vals[Math.floor(vals.length / 2)] : 0, hot = [], cold = [], empty = [];
+  for (w = 0; w < 7; w++) for (k = h0; k <= h1; k++) {
+    var q = per(w, k);
+    if (q == null) { if (N[w][k] >= 2) empty.push({ w: w, k: k }); continue; }
+    if (med && q > med * 1.6 && N[w][k] >= 3) hot.push({ w: w, k: k, q: q });
+    else if (med && st[w][k] >= 1.5 && q < med * 0.5) cold.push({ w: w, k: k, q: q });
+  }
+  hot.sort(function (x, y) { return y.q - x.q; }); cold.sort(function (x, y) { return x.q - y.q; });
+  var isHot = {}, isCold = {}; hot.forEach(function (x) { isHot[x.w + '-' + x.k] = 1; }); cold.forEach(function (x) { isCold[x.w + '-' + x.k] = 1; }); empty.forEach(function (x) { isHot[x.w + '-' + x.k] = 1; });
+  var metric = a.metric, val = function (w, k) { return metric === 'n' ? N[w][k] : metric === 'staff' ? st[w][k] : per(w, k); }, max = 0;
+  for (w = 0; w < 7; w++) for (k = h0; k <= h1; k++) { var vv = val(w, k); if (vv != null && vv > max) max = vv; }
+  h += seg([['per', 'На человека'], ['n', 'Чеки'], ['staff', 'Люди']], metric, 'loadMetric');
+  var grid = '<div class="hm" style="grid-template-columns:30px repeat(7,1fr)"><span></span>' + WD_S.map(function (x, i) { return '<span class="hl' + (i > 4 ? ' we' : '') + '">' + x + '</span>'; }).join('');
+  for (k = h0; k <= h1; k++) {
+    grid += '<span class="hl hr">' + k + '</span>';
+    for (w = 0; w < 7; w++) {
+      var x = val(w, k), id = w + '-' + k, op = x != null && max ? Math.max(0.06, Math.min(1, x / max)) * 0.9 : 0;
+      var txt = x == null ? (N[w][k] >= 1.5 ? '!' : '') : metric === 'n' ? (x >= 0.5 ? Math.round(x) : '') : n1(x) === '0' ? '' : n1(x);
+      grid += '<button class="hm-c' + (isHot[id] ? ' hot' : isCold[id] ? ' cold' : '') + (a.sel === id ? ' sel' : '') + (op > 0.55 ? ' dark' : '') + '" data-a="loadCell" data-v="' + id + '" aria-label="' + WD_FULL[w] + ', ' + k + ':00"><i style="opacity:' + op.toFixed(2) + '"></i><span>' + txt + '</span></button>';
+    }
+  }
+  grid += '</div>';
+  h += grid + '<div class="hm-leg"><span><i class="hot"></i>не хватает рук</span><span><i class="cold"></i>людей больше, чем гостей</span></div>';
+  if (a.sel) {
+    var sw = +a.sel.split('-')[0], sk = +a.sel.split('-')[1], sq = per(sw, sk);
+    h += '<div class="okbox mt">' + WD_FULL[sw].charAt(0).toUpperCase() + WD_FULL[sw].slice(1) + ', ' + sk + ':00–' + (sk + 1) + ':00: в среднем ' + n1(N[sw][sk]) + ' ' + plural(Math.round(N[sw][sk]), ['чек', 'чека', 'чеков']) + ' на ' + money(Sm[sw][sk]) +
+      ', на смене ' + (st[sw][sk] >= 0.05 ? peopleTxt(st[sw][sk]) : 'никого') + (sq != null ? ' — ' + n1(sq) + ' ' + plural(Math.round(sq), ['чек', 'чека', 'чеков']) + ' на человека' : '') + '.</div>';
+  } else h += '<div class="hint mt">Нажми на клетку — покажу подробности. Цифры — средние за такой день недели в этот час.</div>';
+  var line = function (x) { return '<div class="li"><div class="main-t"><b>' + WD_S[x.w] + ' ' + x.k + ':00–' + (x.k + 1) + ':00</b><small>' + n1(N[x.w][x.k]) + ' ' + plural(Math.round(N[x.w][x.k]), ['чек', 'чека', 'чеков']) + ', на смене ' + (st[x.w][x.k] >= 0.05 ? peopleTxt(st[x.w][x.k]) : 'никого') + '</small></div></div>'; };
+  if (hot.length || empty.length) h += '<h3>Где не хватает рук</h3><div class="list">' + empty.slice(0, 2).concat(hot.slice(0, 3)).map(line).join('') + '</div>';
+  if (cold.length) h += '<h3>Где людей больше, чем гостей</h3><div class="list">' + cold.slice(0, 3).map(line).join('') + '</div>';
+  if (!hot.length && !cold.length && !empty.length && vals.length) h += '<div class="okbox mt">Нагрузка ровная: от ' + n1(vals[0]) + ' до ' + n1(vals[vals.length - 1]) + ' чеков на человека в час.</div>';
+  return h + wdBlock;
+};
+
+// --- итоги дня ---
+H.dayRepOpen = function () { openSheet('dayRep', {}); };
+H.dayRepSettings = function () { H.settings({ v: 'g-money' }); };
+H.dayRepSend = function () {
+  var a = S.sheet.args;
+  if (MODE === 'demo') { toast('В рабочей версии это сообщение придёт в Telegram, ВК или MAX', 'ok', 4000); return; }
+  a.busy = true; renderSheet();
+  Remote.call({ op: 'dayreport' }).then(function (j) {
+    a.busy = false; if (j.needLogin) { webLost(); return; }
+    if (j.text) a.text = j.text;
+    renderSheet(); if (j.sent) { haptic('ok'); toast('Отправлено', 'ok'); } else toast(j.err || 'Не получилось отправить', 'err');
+  }, function (e) { a.busy = false; renderSheet(); failMsg(e); });
+};
+H.dayRepTog = function () { var dr = S.db.settings.dayReport || {}; act('settings.save', { settings: { dayReport: { on: dr.on === false, at: dr.at || '21:00' } } }); };
+H.dayRepAt = function (d) { var dr = S.db.settings.dayReport || {}; act('settings.save', { settings: { dayReport: { on: dr.on !== false, at: d.v } } }); };
+SHEETS.dayRep = function (a) {
+  var t = todayISO(), text = a.text || C.dayReportText(S.db, C.dayReport(S.db, t, hmNow())), dr = S.db.settings.dayReport || {};
+  var h = shHead('Итоги дня', 'так выглядит вечернее сообщение');
+  h += '<div class="msg-prev">' + esc(text).replace(/\n/g, '<br>') + '</div>';
+  h += '<div class="note mt">' + (dr.on === false ? 'Сейчас не приходит — включи в настройках.' : 'Приходит каждый день в ' + (dr.at || '21:00') + ' админам, у которых в профиле включены уведомления.') + '</div>';
+  h += '<button class="btn main wide big mt" data-a="dayRepSend"' + (a.busy ? ' disabled' : '') + '>' + (a.busy ? 'Отправляю…' : 'Прислать мне сейчас') + '</button>';
+  h += '<button class="btn wide mt" data-a="dayRepSettings">Время и включение</button>';
+  return h;
+};
+
+var MONTHS_P = ['январе', 'феврале', 'марте', 'апреле', 'мае', 'июне', 'июле', 'августе', 'сентябре', 'октябре', 'ноябре', 'декабре'];
+var WD_ON = ['по понедельникам', 'по вторникам', 'по средам', 'по четвергам', 'по пятницам', 'по субботам', 'по воскресеньям'];
+
+// ---------- отчёты: ABC-анализ меню, бариста, себестоимость, абонементы ----------
+var REP_PERIODS = [['30', '30 дней'], ['month', 'Этот месяц'], ['prev', 'Прошлый месяц'], ['90', '90 дней']];
+function repRange(p) { var t = todayISO(); if (p === '90') return [C.addDays(t, -89), t]; return salesRange(p); }
+// Такой же отрезок до выбранного: для «этого месяца» — те же числа прошлого месяца.
+function repPrevRange(p, rg) {
+  if (p === 'month') { var pm = monthShift(rg[0].slice(0, 7), -1), last = C.addDays(rg[0], -1); return [pm + '-01', pm + '-' + pad(Math.min(+rg[1].slice(8), +last.slice(8)))]; }
+  if (p === 'prev') { var pm2 = monthShift(rg[0].slice(0, 7), -1); return [pm2 + '-01', C.addDays(rg[0], -1)]; }
+  var n = C.daysBetween(rg[0], rg[1]) + 1; return [C.addDays(rg[0], -n), C.addDays(rg[0], -1)];
+}
+function repChips(a, act) { return '<div class="chips">' + REP_PERIODS.map(function (p) { return '<button class="chip' + (a.period === p[0] ? ' on' : '') + '" data-a="' + act + '" data-v="' + p[0] + '">' + p[1] + '</button>'; }).join('') + '</div>'; }
+function repPlaces(a, act) {
+  if (!multi()) return '';
+  return '<div class="chips">' + [['', 'Все точки']].concat(places().map(function (pl) { return [pl.id, pl.name]; })).map(function (p) { return '<button class="chip' + (a.place === p[0] ? ' on' : '') + '" data-a="' + act + '" data-v="' + esc(p[0]) + '">' + esc(p[1]) + '</button>'; }).join('') + '</div>';
+}
+function repSub(rg) { return dayShort(rg[0]) + ' – ' + dayShort(rg[1]) + (MODE === 'demo' ? ' · пример с выдуманными цифрами' : ''); }
+function salesOn() { return MODE === 'demo' || C.aqsiOn(S.db); }
+function sheetA(type) { return S.sheet && S.sheet.type === type ? S.sheet.args : null; }
+function backBtn() { return '<button class="btn wide mt" data-a="repBack">Назад</button>'; }
+H.repBack = function () { back(); };
+function fcTxt(fc) { return '<span class="' + (fc > 35 ? 'warn-t' : '') + '">' + String(fc).replace('.', ',') + '%</span>'; }
+// Продажи за период из кассы (или выдуманные в демо), с тем же кэшем, что у «Продаж по позициям».
+function salesGet(from, to, place) {
+  var key = from + '|' + to + '|' + (place || ''), c = (S.salesCache = S.salesCache || {})[key];
+  if (c && c.rep && c.rep.dh && Date.now() - c.at < 300000) return Promise.resolve(c.rep);
+  if (MODE === 'demo') { var j = demoSales(from, to, place); S.salesCache[key] = { rep: j.report, since: j.since, at: Date.now() }; return Promise.resolve(j.report); }
+  return Remote.call({ op: 'sales', from: from, to: to, place: place || '' }).then(function (j) {
+    if (j.needLogin) { webLost(); throw new Error('Нужно войти заново'); }
+    S.salesCache[key] = { rep: j.report, since: j.since || '', at: Date.now() }; return j.report;
+  });
+}
+// Общая загрузка для отчётов на продажах: a.rep — отчёт, false — кассы нет, null — грузится.
+function repLoad(type, withPrev) {
+  var a = sheetA(type); if (!a) return;
+  a.err = ''; a.rep = null; a.prev = null;
+  if (!salesOn()) { a.rep = false; renderSheet(); return; }
+  var rg = repRange(a.period), pr = repPrevRange(a.period, rg), tag = rg.join('|') + '|' + (a.place || '');
+  a.tag = tag; renderSheet();
+  Promise.all([salesGet(rg[0], rg[1], a.place), withPrev ? salesGet(pr[0], pr[1], a.place) : null]).then(function (r) {
+    if (sheetA(type) !== a || a.tag !== tag) return; a.rep = r[0]; a.prev = r[1]; renderSheet();
+  }, function (e) { if (sheetA(type) !== a || a.tag !== tag) return; a.err = e.message || 'Не получилось загрузить продажи'; renderSheet(); });
+}
+function repWait(a, retry) {
+  if (a.err) return '<div class="warn mt">' + I('warn') + ' ' + esc(a.err) + '</div><button class="btn wide mt" data-a="' + retry + '">Попробовать ещё раз</button>';
+  if (a.rep == null) return '<div class="note mt">Загружаю продажи…</div>';
+  return '';
+}
+function noKassa(what) { return '<div class="note mt">' + what + ' строится по чекам кассы aQsi — её можно подключить в настройках «Деньги и касса».</div><button class="btn wide mt" data-a="settings" data-v="g-money">Открыть настройки</button>'; }
+
+// --- ABC-анализ меню ---
+H.abcOpen = function () { openSheet('abc', { period: '30', by: 'drink', f: '', all: false }); repLoad('abc', true); };
+H.abcPeriod = function (d) { var a = S.sheet.args; a.period = d.v; a.f = ''; repLoad('abc', true); };
+H.abcBy = function (d) { var a = S.sheet.args; a.by = d.v; a.f = ''; renderSheet(); };
+H.abcF = function (d) { var a = S.sheet.args; a.f = a.f === d.v ? '' : d.v; a.all = false; renderSheet(); };
+H.abcAll = function () { S.sheet.args.all = !S.sheet.args.all; renderSheet(); };
+H.abcRetry = function () { repLoad('abc', true); };
+var ME_INFO = {
+  star: ['Звёзды', 'берут часто и маржа выше средней — держать на виду'],
+  horse: ['Рабочие лошадки', 'берут часто, но маржа ниже средней — поднять цену или удешевить рецепт'],
+  puzzle: ['Загадки', 'маржа хорошая, но берут редко — предлагать гостям, переставить в меню'],
+  dog: ['Собаки', 'берут редко и маржа ниже средней — кандидаты на вывод']
+};
+function abcBadge(c, title) { return '<span class="abc-b ' + c + '" title="' + title + '">' + c + '</span>'; }
+SHEETS.abc = function (a) {
+  var rg = repRange(a.period), h = shHead('ABC-анализ меню', repSub(rg));
+  h += repChips(a, 'abcPeriod');
+  if (a.rep === false) return h + noKassa('ABC-анализ');
+  var w = repWait(a, 'abcRetry'); if (w) return h + w;
+  var r = C.abcReport(S.db, a.rep.items || [], a.prev ? a.prev.items || [] : null, a.by === 'drink');
+  h += seg([['drink', 'По напиткам'], ['item', 'По позициям кассы']], a.by, 'abcBy');
+  if (!r.items.length) return h + '<div class="empty">За этот период продаж с названиями позиций нет.</div>';
+  h += '<div class="okbox mt">' + r.a + ' ' + plural(r.a, ['позиция', 'позиции', 'позиций']) + ' из ' + r.items.length + ' ' + plural(r.a, ['приносит', 'приносят', 'приносят']) + ' ' + r.aShare + '% выручки — это группа A.</div>';
+  h += '<div class="grid3 mt">' + ['A', 'B', 'C'].map(function (c) {
+    return '<button class="mini abc-m' + (a.f === c ? ' on' : '') + '" data-a="abcF" data-v="' + c + '"><b>' + abcBadge(c, '') + ' ' + r[c.toLowerCase()] + '</b><small>' + (c === 'A' ? 'основная выручка' : c === 'B' ? 'середина' : 'хвост меню') + '</small></button>';
+  }).join('') + '</div>';
+  if (r.mx) h += '<h3>Матрица меню</h3><div class="mx">' + ['star', 'horse', 'puzzle', 'dog'].map(function (k) {
+    return '<button class="mx-c ' + k + (a.f === k ? ' on' : '') + '" data-a="abcF" data-v="' + k + '"><b>' + ME_INFO[k][0] + ' · ' + r.mx[k] + '</b><small>' + ME_INFO[k][1] + '</small></button>';
+  }).join('') + '</div><div class="hint">Популярность — доля в штуках, маржа — цена минус продукты по ТТК. Средняя маржа: ' + money(r.mx.mCut) + ' со штуки.</div>';
+  else h += '<div class="hint mt">Когда у напитков будет себестоимость, здесь появится матрица меню: звёзды, лошадки, загадки и собаки.</div><button class="btn wide mt" data-a="costOpen">' + I('coin') + ' Себестоимость</button>';
+  var list = r.items.filter(function (o) { return !a.f || o.cs === a.f || o.me === a.f; }), show = a.all ? list : list.slice(0, 25);
+  h += '<h3>' + (a.f ? (ME_INFO[a.f] ? ME_INFO[a.f][0] : 'Группа ' + a.f) : 'Все позиции') + '</h3>';
+  h += '<div class="list">' + show.map(function (o) {
+    var d = o.isNew ? '<span class="up-t">новая</span>' : o.d == null || Math.abs(o.d) < 3 ? '' : '<span class="' + (o.d >= 0 ? 'up-t' : 'down-t') + '">' + pctTxt(o.d) + '</span>';
+    return '<div class="li" style="display:block"><div class="row" style="gap:8px"><div class="grow"><b>' + abcBadge(o.cs, 'по выручке') + abcBadge(o.cq, 'по штукам') + ' ' + esc(o.name) + '</b></div><b>' + money(o.s) + '</b></div>' +
+      '<small class="note">' + qty(o.q) + ' · ' + String(o.share).replace('.', ',') + '% выручки' + (o.m != null ? ' · маржа ' + money(o.m) + ' со штуки' : '') + (d ? ' · ' + d : '') + '</small></div>';
+  }).join('') + '</div>';
+  if (list.length > 25) h += '<button class="btn wide mt" data-a="abcAll">' + (a.all ? 'Показать первые 25' : 'Показать все (' + list.length + ')') + '</button>';
+  if (!a.f) {
+    if (r.hasPrev) {
+      var pr = repPrevRange(a.period, rg), cmp = r.items.filter(function (o) { return o.d != null && o.prevS >= r.tot * 0.005; });
+      var up = cmp.slice().sort(function (x, y) { return y.d - x.d; }).filter(function (o) { return o.d >= 15; }).slice(0, 3);
+      var down = cmp.slice().sort(function (x, y) { return x.d - y.d; }).filter(function (o) { return o.d <= -15; }).slice(0, 3);
+      var news = r.items.filter(function (o) { return o.isNew; }).slice(0, 3), lines = [];
+      var nm = function (o) { return esc(o.name) + ' ' + pctTxt(o.d); };
+      if (up.length) lines.push('<b>Растут:</b> ' + up.map(nm).join(', '));
+      if (down.length) lines.push('<b>Падают:</b> ' + down.map(nm).join(', '));
+      if (news.length) lines.push('<b>Новые в продажах:</b> ' + news.map(function (o) { return esc(o.name); }).join(', '));
+      if (r.gone.length) lines.push('<b>Перестали продаваться:</b> ' + r.gone.slice(0, 3).map(function (o) { return esc(o.name); }).join(', ') + (r.gone.length > 3 ? ' и ещё ' + (r.gone.length - 3) : ''));
+      if (lines.length) h += '<h3>К прошлому периоду</h3><div class="note">' + lines.join('<br>') + '</div><div class="hint">Сравниваю с ' + dayShort(pr[0]) + ' – ' + dayShort(pr[1]) + '.</div>';
+    }
+    var weak = r.items.filter(function (o) { return !o.isNew && (r.mx ? o.me === 'dog' : o.cs === 'C' && o.cq === 'C'); });
+    if (weak.length) h += '<h3>Кандидаты на вывод из меню</h3><div class="note">' + weak.slice(0, 6).map(function (o) { return esc(o.name); }).join(', ') + (weak.length > 6 ? ' и ещё ' + (weak.length - 6) : '') + '.</div><div class="hint">' + (r.mx ? 'Берут редко, и маржа ниже средней.' : 'Последние и по выручке, и по штукам.') + ' Прежде чем убирать, проверь: может, позиция новая или сезонная.</div>';
+    if (a.by === 'drink') {
+      var sold = {}, mS = 0; r.items.forEach(function (o) { if (o.t) { sold[o.t] = 1; mS += o.s; } });
+      if (r.tot && mS / r.tot >= 0.5) {
+        var uns = S.db.ttk.filter(function (t) { return !t.hidden && !sold[t.id]; });
+        if (uns.length) h += '<h3>Есть в ТТК, но не продавались</h3><div class="note">' + uns.slice(0, 8).map(function (t) { return esc(t.name); }).join(', ') + (uns.length > 8 ? ' и ещё ' + (uns.length - 8) : '') + '.</div>';
+      }
+      var lost = r.items.filter(function (o) { return !o.t; }).length;
+      if (lost) h += '<div class="hint mt">' + lost + ' ' + plural(lost, ['позицию', 'позиции', 'позиций']) + ' кассы не нашёл в ТТК — они показаны под своими названиями. Привязать можно в «Себестоимости».</div>';
+    }
+  }
+  h += '<div class="hint mt">Первая буква — класс по выручке, вторая — по штукам. A — позиции, которые вместе дают первые 80%, B — следующие 15%, C — последние 5%.</div>';
+  return h;
+};
+
+// --- бариста ---
+H.staffRepOpen = function () { openSheet('staffRep', { period: '30', place: '', sort: 'hour' }); repLoad('staffRep'); };
+H.staffRepPeriod = function (d) { S.sheet.args.period = d.v; repLoad('staffRep'); };
+H.staffRepPlace = function (d) { S.sheet.args.place = d.v || ''; repLoad('staffRep'); };
+H.staffRepSort = function (d) { S.sheet.args.sort = d.v; renderSheet(); };
+H.staffRepRetry = function () { repLoad('staffRep'); };
+SHEETS.staffRep = function (a) {
+  var rg = repRange(a.period), h = shHead('Бариста', repSub(rg));
+  h += repChips(a, 'staffRepPeriod') + repPlaces(a, 'staffRepPlace');
+  var w = repWait(a, 'staffRepRetry'); if (w) return h + w;
+  var r = C.staffSales(S.db, a.rep || null, rg[0], rg[1], a.place);
+  if (!r.rows.length) return h + '<div class="empty">За этот период нет смен и продаж.</div>';
+  var full = r.method !== 'revenue', key = full && a.sort === 'avg' ? 'avg' : full && a.sort === 'mods' ? 'mPer' : 'perHour';
+  if (full) h += seg([['hour', '₽ в час'], ['avg', 'Средний чек'], ['mods', 'Добавки']], a.sort, 'staffRepSort');
+  var rows = r.rows.slice().sort(function (x, y) { return (y[key] || 0) - (x[key] || 0) || y.s - x.s; }), max = 0;
+  rows.forEach(function (x) { if ((x[key] || 0) > max) max = x[key]; });
+  var best = function (k) {
+    var c = r.rows.filter(function (x) { return x.hours >= 8 && x[k] != null; }), b = null;
+    c.forEach(function (x) { if (!b || x[k] > b[k]) b = x; }); return c.length > 1 && b ? b.id : '';
+  };
+  var bH = best('perHour'), bA = best('avg'), bM = best('mPer');
+  h += '<div class="list mt">' + rows.map(function (x) {
+    var val = x[key], vt = val == null ? '—' : key === 'mPer' ? n1(val) : money(val) + (key === 'perHour' ? '/ч' : '');
+    var tags = (x.id === bH ? '<span class="badge gold">больше всех в час</span>' : '') + (x.id === bA ? '<span class="badge gold">лучший средний чек</span>' : '') + (x.id === bM ? '<span class="badge gold">больше всех добавок</span>' : '');
+    var bits = [hrs(x.hours) + ' ч', money(x.s)];
+    if (x.n != null) bits.push(grp(Math.round(x.n)) + ' ' + plural(Math.round(x.n), ['чек', 'чека', 'чеков']));
+    if (x.avg != null && key !== 'avg') bits.push('средний чек ' + money(x.avg));
+    if (x.mPer != null && key !== 'mPer') bits.push('добавок ' + n1(x.mPer) + ' на 100 чеков');
+    if (x.perHour != null && key !== 'perHour') bits.push(money(x.perHour) + ' в час');
+    if (x.marks) bits.push(x.marks + ' ' + plural(x.marks, ['отметка', 'отметки', 'отметок']) + ' в абонементах');
+    if (x.issued) bits.push('новых абонементов: ' + x.issued);
+    return '<div class="li" style="display:block"><div class="row" style="align-items:center;gap:10px">' + ava(staff(x.id), '') + '<div class="grow"><b>' + esc(x.name) + '</b>' + (tags ? '<div class="rep-tags">' + tags + '</div>' : '') + '</div><b>' + vt + (key === 'mPer' && val != null ? '<small class="note"> на 100 чеков</small>' : '') + '</b></div>' +
+      '<div class="bar thin" style="margin:8px 0 4px"><i style="width:' + (max && val ? Math.max(2, Math.round(val / max * 100)) : 0) + '%"></i></div><small class="note">' + bits.join(' · ') + '</small></div>';
+  }).join('') + '</div>';
+  if (r.other.s > 0) h += '<div class="note mt">' + (r.method === 'cashier' ? 'Чеки кассиров, которых нет в команде' : 'Продажи в часы, когда в графике никого') + ': ' + money(r.other.s) + (r.other.n ? ', ' + r.other.n + ' ' + plural(r.other.n, ['чек', 'чека', 'чеков']) : '') + '.</div>';
+  h += '<div class="hint mt">' + ({ cashier: 'Продажи — по кассиру в чеке aQsi.', shift: 'Выручка каждого часа делится между теми, кто стоял на смене в этот час.', revenue: 'Касса aQsi не подключена: выручка дня делится по отработанным часам. Чеки, средний чек и добавки появятся с кассой.' })[r.method] +
+    (full ? ' Средний чек и добавки зависят и от времени: утром берут один кофе, днём — с едой. Сравнивай людей на похожих сменах.' : '') + '</div>';
+  if (r.cashiers.length) {
+    h += '<h3>Кассиры в aQsi</h3><div class="list">' + r.cashiers.map(function (c) {
+      var st = c.staffId ? staff(c.staffId) : null;
+      return '<button class="li" data-a="cashierPick" data-v="' + esc(c.name) + '"><div class="main-t"><b>' + esc(c.name) + '</b><small>' + (st ? 'это ' + esc(st.name) + (c.manual ? '' : ', по имени') : c.manual ? 'не сотрудник' : 'не понял, кто это') + ' · ' + money(c.s) + '</small></div><span class="chev" aria-hidden="true"></span></button>';
+    }).join('') + '</div><div class="hint">Если имя в кассе не совпадает с именем в команде — нажми и выбери, кто это.</div>';
+  }
+  return h;
+};
+H.cashierPick = function (d) { openSheet('cashierMap', { name: d.v, back: S.sheet }, true); };
+SHEETS.cashierMap = function (a) {
+  var cur = (S.db.settings.cashiers || {})[a.name], auto = cur === undefined ? C.cashierStaff(S.db, a.name) : null;
+  var h = shHead('Кто это в кассе', esc(a.name));
+  if (auto) h += '<div class="note">Сейчас определился по имени: ' + esc(auto.name) + '.</div>';
+  h += '<div class="list mt">' + S.db.staff.filter(function (s) { return s.active !== false; }).map(function (s) {
+    return '<button class="li" data-a="cashierSet" data-v="' + s.id + '">' + ava(s, '') + '<div class="main-t"><b>' + esc(s.name) + '</b></div>' + (cur === s.id ? '<span class="nav-r">' + I('check') + '</span>' : '') + '</button>';
+  }).join('') + '</div>';
+  h += '<button class="btn wide mt" data-a="cashierSet" data-v="-">Не сотрудник (общий вход, владелец)</button>';
+  if (cur !== undefined) h += '<button class="btn wide mt" data-a="cashierSet" data-v="auto">Определять по имени</button>';
+  return h + backBtn();
+};
+H.cashierSet = function (d) {
+  var a = S.sheet.args, id = d.v === '-' ? '' : d.v === 'auto' ? null : d.v;
+  if (act('cashier.map', { name: a.name, staffId: id })) { haptic('ok'); toast('Сохранено', 'ok'); back(); }
+};
+
+// --- себестоимость ---
+H.costOpen = function () { openSheet('cost', { period: '30', all: false }, true); repLoad('cost'); };
+H.costPeriod = function (d) { S.sheet.args.period = d.v; repLoad('cost'); };
+H.costRetry = function () { repLoad('cost'); };
+H.costAll = function () { S.sheet.args.all = !S.sheet.args.all; renderSheet(); };
+// Рубли с копейками для небольших сумм: крышка 5,7 ₽, порция 18,45 ₽; от тысячи и целые — как обычно.
+function rubK(n) { if (n == null) return '—'; var r = Math.round(n * 100) / 100; return Math.abs(r) >= 1000 || r % 1 === 0 ? money(r) : (r < 0 ? '−' : '') + String(Math.abs(r)).replace('.', ',') + ' ₽'; }
+function catAll() { return (S.db.costs || {}).ing || {}; }
+function resKey(k) { var e = catAll()[k]; return e && e.same && catAll()[e.same] ? e.same : k; }
+function ingLabel(key) { var c = catAll()[resKey(key)]; return c && c.name ? c.name : key.charAt(0).toUpperCase() + key.slice(1); }
+function packsAll() { return (S.db.costs || {}).packs || []; }
+function qtyTxt(q, u) { return q == null ? '—' : String(q).replace('.', ',') + (u ? ' ' + u : ''); }
+function normQ(s) { return String(s || '').toLowerCase().replace(/ё/g, 'е').trim(); }
+function pct1(x) { return String(Math.round(x * 10) / 10).replace('.', ',') + '%'; }
+function costNav() {
+  var miss = C.ingList(S.db).filter(function (x) { return x.price == null; }).length;
+  return '<div class="list mt">' + navRow('costkit', I('coin'), 'Конструктор себестоимости', miss ? '<span class="warn-t">' + miss + ' без цены</span>' : '', 'напитки, ингредиенты и упаковка: состав, количество, цены, поиск', 'costMenuOpen') + '</div>';
+}
+function costSplit(u) { return u.pack ? 'продукты ' + rubK(u.prod) + ' + упаковка ' + rubK(u.pack) : 'продукты ' + rubK(u.prod != null ? u.prod : u.cost); }
+function costRow(x) {
+  var u = x.u, sub;
+  if (x.cost == null) sub = '<span class="warn-t">' + (u.parts ? 'нет цены: ' + esc(u.missing.slice(0, 3).map(ingLabel).join(', ')) + (u.missing.length > 3 ? '…' : '') : 'нет состава') + '</span>';
+  else sub = qty(x.q) + ' × ' + rubK(x.avg) + ' · ' + rubK(x.unit) + ' (' + fcTxt(x.fc) + '): ' + costSplit(u);
+  var tgt = u.t ? 'data-a="costTtkOpen" data-id="' + u.t + '" data-v="' + (u.size || '') + '" data-item="' + esc(x.name) + '"' : 'data-a="costMapOpen" data-v="' + esc(x.name) + '"';
+  return '<button class="li" ' + tgt + ' style="display:block;text-align:left"><div class="row" style="gap:8px"><div class="grow"><b>' + esc(x.name) + '</b></div><b>' + (x.gp != null ? rubK(x.gp) : '—') + '</b></div><small class="note">' + sub +
+    (u.guess && u.size ? ' · размер в кассе не указан, считаю ' + u.size + ' мл' : '') + '</small></button>';
+}
+SHEETS.cost = function (a) {
+  var rg = repRange(a.period), h = shHead('Себестоимость', a.rep === false ? 'по составу напитков и закупочным ценам' : repSub(rg));
+  if (a.rep === false) return h + '<div class="note">Касса aQsi не подключена, поэтому фудкост и валовую прибыль по продажам не посчитать. Состав, цены и себестоимость каждого напитка — в конструкторе.</div>' + costNav();
+  h += repChips(a, 'costPeriod');
+  var w = repWait(a, 'costRetry'); if (w) return h + w;
+  var r = C.costReport(S.db, a.rep.items || []);
+  if (!r.rev) return h + '<div class="empty">За этот период продаж с названиями позиций нет.</div>' + costNav();
+  h += '<div class="bigkassa"><b>' + rubK(r.gp) + '</b><small>валовая прибыль — выручка минус продукты и упаковка</small></div>';
+  h += '<div class="grid3"><div class="mini"><b>' + grp(r.covRev) + '</b><small>выручка</small></div><div class="mini"><b>' + grp(r.cost) + '</b><small>себестоимость</small></div><div class="mini"><b>' + fcTxt(r.fc) + '</b><small>фудкост</small></div></div>';
+  if (r.cov < 100) h += '<div class="note mt">Посчитано ' + r.cov + '% выручки: ' + rubK(r.covRev) + ' из ' + rubK(r.rev) + '. Остальное — позиции без себестоимости, они ниже.</div>';
+  h += costNav();
+  var show = a.all ? r.rows : r.rows.slice(0, 20);
+  if (r.rows.length) h += '<h3>Позиции — по валовой прибыли</h3><div class="list">' + show.map(costRow).join('') + '</div>';
+  if (r.rows.length > 20) h += '<button class="btn wide mt" data-a="costAll">' + (a.all ? 'Показать первые 20' : 'Показать все (' + r.rows.length + ')') + '</button>';
+  if (r.none.length) h += '<h3>Не нашёл в ТТК · ' + r.none.length + '</h3><div class="list">' + r.none.map(function (x) {
+    return '<button class="li" data-a="costMapOpen" data-v="' + esc(x.name) + '"><div class="main-t"><b>' + esc(x.name) + '</b><small>' + qty(x.q) + ' · ' + rubK(x.s) + ' — укажи напиток или себестоимость</small></div><span class="chev" aria-hidden="true"></span></button>';
+  }).join('') + '</div>';
+  h += '<div class="hint mt">Себестоимость — продукты по составу и закупочным ценам плюс упаковка из наборов. Списания не входят. Фудкост — доля себестоимости в цене: у кофеен обычно 20–35%, выше 35% подсвечено.</div>';
+  return h;
+};
+
+// ===== Конструктор себестоимости: Напитки · Ингредиенты · Упаковка — с поиском и сортировкой =====
+var KIT_SORTS = {
+  drinks: [['name', 'Название'], ['cost', 'Себестоимость'], ['fc', 'Фудкост'], ['m', 'Маржа']],
+  ing: [['name', 'Название'], ['price', 'Цена'], ['n', 'Где чаще'], ['miss', 'Без цены']],
+  pack: [['name', 'Название'], ['price', 'Цена'], ['n', 'Где чаще'], ['miss', 'Без цены']]
+};
+function openKit(tab) {
+  if (S.sheet && S.sheet.type === 'costKit') { S.sheet.args.tab = tab; S.sheet.args.sort = 'name'; S.sheet.args.dir = 1; renderSheet(); return; }
+  openSheet('costKit', { tab: tab, q: '', sort: 'name', dir: 1, back: S.sheet && S.sheet.type === 'cost' ? S.sheet : null }, true);
+}
+H.costMenuOpen = function () { openKit('drinks'); };
+H.costIngOpen = function (d) { openKit(d && d.v === 'pack' ? 'pack' : 'ing'); };
+H.kitTab = function (d) { var a = S.sheet.args; a.tab = d.v; a.sort = 'name'; a.dir = 1; renderSheet(); };
+H.kitSort = function (d) { var a = S.sheet.args; if (a.sort === d.v) a.dir = -a.dir; else { a.sort = d.v; a.dir = d.v === 'name' || d.v === 'miss' ? 1 : -1; } renderSheet(); };
+function inKitQ(val) { var a = S.sheet && S.sheet.type === 'costKit' ? S.sheet.args : null; if (!a) return; a.q = val; var l = document.getElementById('kit-list'); if (l) l.innerHTML = kitList(a); };
+SHEETS.costKit = function (a) {
+  var miss = C.ingList(S.db).filter(function (x) { return x.price == null; }).length;
+  var h = shHead('Конструктор себестоимости', miss ? miss + ' без цены' : 'состав, количество и цены');
+  h += seg([['drinks', 'Напитки'], ['ing', 'Ингредиенты'], ['pack', 'Упаковка']], a.tab, 'kitTab');
+  h += '<div class="search mt">' + I('search') + '<input class="in" type="search" placeholder="' + (a.tab === 'drinks' ? 'Найти напиток' : a.tab === 'ing' ? 'Найти ингредиент' : 'Найти набор или упаковку') + '" value="' + esc(a.q) + '" data-in="kitQ" enterkeyhint="search"></div>';
+  h += '<div class="chips">' + KIT_SORTS[a.tab].map(function (s) { var on = a.sort === s[0]; return '<button class="chip' + (on ? ' on' : '') + '" data-a="kitSort" data-v="' + s[0] + '">' + s[1] + (on && s[0] !== 'miss' ? (a.dir > 0 ? ' ↑' : ' ↓') : '') + '</button>'; }).join('') + '</div>';
+  if (a.tab === 'ing') h += '<button class="btn wide" data-a="costIngNew" data-v="ing">+ Новый ингредиент</button>';
+  if (a.tab === 'pack') h += '<div class="row" style="gap:8px"><button class="btn grow" data-a="packEdit" data-v="">+ Набор</button><button class="btn grow" data-a="costIngNew" data-v="pack">+ Стакан, крышка…</button></div>';
+  h += '<div id="kit-list">' + kitList(a) + '</div>';
+  return h + (a.back ? backBtn() : '');
+};
+function ttkSizes(t) { return ['250', '350', '450'].filter(function (k) { return t.sizes['s' + k]; }); }
+function mainSize(t) { var s = ttkSizes(t); return s.indexOf('350') >= 0 ? '350' : s[0] || ''; }
+function sortBy(list, key, dir, nameOf) {
+  return list.sort(function (x, y) {
+    var a = x[key], b = y[key];
+    if (key === 'name') return dir * (normQ(nameOf(x)) < normQ(nameOf(y)) ? -1 : 1);
+    if (a == null && b == null) return normQ(nameOf(x)) < normQ(nameOf(y)) ? -1 : 1;
+    if (a == null) return 1; if (b == null) return -1;
+    return dir * (a - b) || (normQ(nameOf(x)) < normQ(nameOf(y)) ? -1 : 1);
+  });
+}
+function kitList(a) {
+  var q = normQ(a.q), out = '';
+  if (a.tab === 'drinks') {
+    var rows = S.db.ttk.filter(function (t) { return !t.hidden && (!q || normQ(t.name).indexOf(q) >= 0); }).map(function (t) {
+      var ms = mainSize(t), tc = C.ttkCost(S.db, t, ms);
+      return { t: t, name: t.name, cost: tc.ok ? tc.cost : null, fc: tc.ok && tc.price ? tc.cost / tc.price * 100 : null, m: tc.ok && tc.price ? tc.price - tc.cost : null, ms: ms };
+    });
+    var line = function (r) {
+      var t = r.t, sizes = ttkSizes(t); if (!sizes.length) sizes = [''];
+      var cells = sizes.map(function (k) { var tc = C.ttkCost(S.db, t, k); return (k ? k + ' — ' : '') + (tc.ok ? rubK(tc.cost) + (tc.price ? ' (' + pct1(tc.cost / tc.price * 100) + ')' : '') : '<span class="warn-t">' + (tc.parts.length || tc.own ? 'нет цен' : 'нет состава') + '</span>'); }).join(' · ');
+      var right = a.sort === 'fc' ? (r.fc != null ? pct1(r.fc) : '—') : a.sort === 'm' ? (r.m != null ? rubK(r.m) : '—') : (r.cost != null ? rubK(r.cost) : '—');
+      return '<button class="li" data-a="costTtkOpen" data-id="' + t.id + '"><div class="main-t"><b>' + esc(t.name) + '</b><small>' + cells + '</small></div><span class="nav-r' + (r.fc > 35 && a.sort === 'fc' ? ' warn-t' : '') + '">' + right + '</span><span class="chev" aria-hidden="true"></span></button>';
+    };
+    if (a.sort === 'name' && !q) S.db.ttkCats.forEach(function (c) {
+      var list = rows.filter(function (r) { return r.t.cat === c.id; }).sort(function (x, y) { return (x.t.order || 0) - (y.t.order || 0); }); if (a.dir < 0) list.reverse();
+      if (list.length) out += '<h3>' + esc(c.name) + '</h3><div class="list">' + list.map(line).join('') + '</div>';
+    });
+    else out += rows.length ? '<div class="list mt">' + sortBy(rows, a.sort, a.dir, function (r) { return r.name; }).map(line).join('') + '</div>' : '';
+    var map = (S.db.costs || {}).map || {}, own = Object.keys(map).filter(function (n) { return map[n].c != null && (!q || normQ(n).indexOf(q) >= 0); }).sort();
+    if (own.length) out += '<h3>Позиции кассы со своей себестоимостью</h3><div class="list">' + own.map(function (n) { var u = C.unitCost(S.db, n); return '<button class="li" data-a="costMapOpen" data-v="' + esc(n) + '"><div class="main-t"><b>' + esc(n) + '</b><small>' + (u.packName ? costSplit(u) : 'продукты ' + rubK(u.prod)) + '</small></div><span class="nav-r">' + rubK(u.cost) + '</span><span class="chev" aria-hidden="true"></span></button>'; }).join('') + '</div>';
+    if (!rows.length && !own.length) out = '<div class="empty">Ничего не нашлось.</div>';
+    out += '<div class="hint mt">Справа — себестоимость ' + (a.sort === 'fc' ? 'в процентах от цены' : a.sort === 'm' ? '— сколько остаётся с порции' : 'порции') + ' для 350 мл (или единственного размера). В скобках — фудкост.</div>';
+    return out;
+  }
+  var kind = a.tab === 'pack' ? 'pack' : 'ing', list = C.ingList(S.db, kind).filter(function (x) { return !q || normQ(x.name).indexOf(q) >= 0 || x.aliases.some(function (k) { return k.indexOf(q) >= 0; }); });
+  if (kind === 'pack') {
+    var def = (S.db.costs || {}).packDef, packs = packsAll().filter(function (pk) { return !q || normQ(pk.name).indexOf(q) >= 0; });
+    if (packs.length || !q) {
+      out += '<h3>Наборы упаковки</h3>';
+      if (packs.length) out += '<div class="list">' + packs.map(function (pk) {
+        var n = S.db.ttk.filter(function (t) { return C.packFor(S.db, t) === pk; }).length;
+        return '<button class="li" data-a="packEdit" data-v="' + esc(pk.id) + '"><div class="main-t"><b>' + esc(pk.name) + (pk.id === def ? ' <span class="badge gold">по умолчанию</span>' : '') + '</b><small>' + packLine(pk) + (n ? ' · ' + n + ' ' + plural(n, ['напиток', 'напитка', 'напитков']) : '') + '</small></div><span class="chev" aria-hidden="true"></span></button>';
+      }).join('') + '</div>';
+      else out += '<div class="note">Наборов пока нет.</div><button class="btn main wide mt" data-a="packStarter">Создать стандартные наборы</button><div class="hint mt">Горячий и холодный напиток, десерт, выпечка — со стаканами, крышками и упаковкой. Останется вписать цены.</div>';
+    }
+    out += '<h3>Стаканы, крышки, коробки</h3>';
+  }
+  list = a.sort === 'miss' ? list.sort(function (x, y) { return (x.price == null ? 0 : 1) - (y.price == null ? 0 : 1) || (normQ(x.name) < normQ(y.name) ? -1 : 1); })
+    : sortBy(list, a.sort === 'price' ? 'price' : a.sort === 'n' ? 'n' : 'name', a.dir, function (x) { return x.name; });
+  out += list.length ? '<div class="list' + (kind === 'pack' ? '' : ' mt') + '">' + list.map(ingRow).join('') + '</div>' : '<div class="empty">' + (q ? 'Ничего не нашлось.' : kind === 'pack' ? 'Добавь стаканы и крышки, а потом собери из них наборы.' : 'В ТТК пока нет составов с количеством.') + '</div>';
+  if (q && kind === 'ing' && !list.some(function (x) { return normQ(x.name) === q; })) out += '<button class="btn wide mt" data-a="costIngNew" data-v="ing" data-name="' + esc(a.q) + '">+ Добавить «' + esc(a.q) + '»</button>';
+  if (kind === 'ing') out += '<div class="hint mt">Цена — закупочная: за килограмм, литр или штуку. В составе граммы и миллилитры считаются по цене за кг и литр.</div>';
+  return out;
+}
+function ingRow(x) {
+  return '<button class="li" data-a="costIngEdit" data-v="' + esc(x.key) + '"><div class="main-t"><b>' + esc(x.name) + '</b><small>' + (x.n ? x.n + ' ' + plural(x.n, ['раз', 'раза', 'раз']) + ' · ' + esc(x.sample) : 'пока нигде не используется') + '</small></div><span class="nav-r' + (x.price == null ? ' warn-t' : '') + '">' + (x.price == null ? 'нет цены' : rubK(x.price) + '/' + x.per) + '</span><span class="chev" aria-hidden="true"></span></button>';
+}
+function packSum(pk, size) {
+  var sum = 0, miss = 0;
+  (pk.all || []).concat(size ? pk['s' + size] || [] : []).forEach(function (x) { var e = catAll()[resKey(x.k)]; if (e && typeof e.price === 'number') sum += e.price * x.q; else miss++; });
+  return miss ? null : Math.round(sum * 100) / 100;
+}
+function packLine(pk) {
+  var sizes = ['250', '350', '450'].filter(function (k) { return (pk['s' + k] || []).length; });
+  if (!sizes.length) { var s0 = packSum(pk, ''); return (pk.all || []).length ? (s0 == null ? 'нет цены' : rubK(s0)) : 'пусто'; }
+  return sizes.map(function (k) { var s = packSum(pk, k); return k + ' — ' + (s == null ? 'нет цены' : rubK(s)); }).join(' · ');
+}
+H.packStarter = function () { if (act('pack.starter', {})) { haptic('ok'); toast('Наборы созданы — впиши цены', 'ok'); } };
+
+// ===== Выбор ингредиента или упаковки — с поиском и созданием нового =====
+function openPick(kind, title, cb, exclude) { openSheet('ingPick', { kind: kind, title: title, q: '', cb: cb, exclude: exclude || '', back: S.sheet }); setTimeout(function () { var el = document.querySelector('#sheet [data-in="pickQ"]'); if (el) el.focus(); }, 120); }
+function inPickQ(val) { var a = S.sheet && S.sheet.type === 'ingPick' ? S.sheet.args : null; if (!a) return; a.q = val; var l = document.getElementById('pick-list'); if (l) l.innerHTML = pickList(a); };
+function pickList(a) {
+  var q = normQ(a.q), list = C.ingList(S.db, a.kind).filter(function (x) { return x.key !== a.exclude && (!q || normQ(x.name).indexOf(q) >= 0 || x.aliases.some(function (k) { return k.indexOf(q) >= 0; })); })
+    .sort(function (x, y) { return normQ(x.name) < normQ(y.name) ? -1 : 1; });
+  var h = list.length ? '<div class="list">' + list.map(function (x) { return '<button class="li" data-a="pickSel" data-v="' + esc(x.key) + '"><div class="main-t"><b>' + esc(x.name) + '</b>' + (x.n ? '<small>' + x.n + ' ' + plural(x.n, ['раз', 'раза', 'раз']) + ' в составах</small>' : '') + '</div><span class="nav-r' + (x.price == null ? ' warn-t' : '') + '">' + (x.price == null ? 'нет цены' : rubK(x.price) + '/' + x.per) + '</span></button>'; }).join('') + '</div>' : '<div class="note">Такого в списке нет.</div>';
+  if (q && !list.some(function (x) { return normQ(x.name) === q; }) && a.allowNew !== false) h += '<button class="btn main wide mt" data-a="pickNew">+ Создать «' + esc(a.q.trim()) + '»</button>';
+  return h;
+}
+SHEETS.ingPick = function (a) {
+  return shHead(a.title || 'Выбери ингредиент', '') + '<div class="search">' + I('search') + '<input class="in" type="search" placeholder="Начни вводить название" value="' + esc(a.q) + '" data-in="pickQ" enterkeyhint="search"></div><div id="pick-list" class="mt">' + pickList(a) + '</div>' + backBtn();
+};
+H.pickSel = function (d) { var cb = S.sheet.args.cb; back(); if (cb) cb(d.v); };
+H.pickNew = function () {
+  var a = S.sheet.args, name = String(a.q || '').trim(); if (!name) return;
+  var key = C.ingKey(name), cb = a.cb;
+  if (!act('cost.ing', { key: name, name: name.charAt(0).toUpperCase() + name.slice(1), kind: a.kind === 'pack' ? 'pack' : '', man: true, price: '', per: guessPer({ key: key, u: '', kind: a.kind }) })) return;
+  toast('Добавлено. Цену можно вписать позже', 'ok'); back(); if (cb) cb(key);
+};
+
+// ===== Карточка ингредиента или упаковки: название, цена, где используется, объединить =====
+function ingOf(key) { return C.ingList(S.db).filter(function (i) { return i.key === key; })[0] || { key: key, name: ingLabel(key), sample: '', u: '', price: null, per: '', aliases: [], n: 0, kind: (catAll()[key] || {}).kind === 'pack' ? 'pack' : 'ing' }; }
+function guessPer(x) { return x.kind === 'pack' || x.u === 'шт' || /эспрессо/.test(x.key) ? 'шт' : /молок|сливк|вода|сироп|пюре|сгущ|сок|топпинг|карамел|ваниль|тоник|квас/.test(x.key) ? 'л' : 'кг'; }
+H.costIngNew = function (d) { openSheet('costIngEdit', { key: '', isNew: true, kind: d.v === 'pack' ? 'pack' : 'ing', tname: d.name || '', back: S.sheet }); };
+H.costIngEdit = function (d) { openSheet('costIngEdit', { key: resKey(d.v), back: S.sheet }, true); };
+H.costIngPer = function (d) { var a = S.sheet.args; a.typed = v('price'); a.tname = v('iname'); a.per = d.v; renderSheet(); };
+SHEETS.costIngEdit = function (a) {
+  var x = a.isNew ? { key: '', name: '', sample: '', u: a.kind === 'pack' ? 'шт' : '', price: null, per: '', kind: a.kind, aliases: [] } : ingOf(a.key), pack = x.kind === 'pack';
+  var per = pack ? 'шт' : a.per || x.per || guessPer(x), val = a.typed != null ? a.typed : x.price != null ? String(x.price).replace('.', ',') : '', nm = a.tname != null ? a.tname : x.name;
+  var h = shHead(a.isNew ? (pack ? 'Новая упаковка' : 'Новый ингредиент') : x.name, a.isNew ? '' : pack ? 'упаковка' : 'ингредиент');
+  h += '<label class="field"><span>Название</span><input class="in" name="iname" maxlength="60" value="' + esc(nm) + '" placeholder="' + (pack ? 'Например: Стаканчик 350' : 'Например: Корица') + '"></label>';
+  if (!pack) h += '<div class="field"><span>Цена за</span>' + seg([['кг', 'килограмм'], ['л', 'литр'], ['шт', 'штуку']], per, 'costIngPer') + '</div>';
+  h += '<label class="field"><span>Закупочная цена, ₽ за 1 ' + per + '</span><input class="in" name="price" inputmode="decimal" value="' + esc(val) + '" placeholder="' + (pack ? 'Например: 10,5' : per === 'л' ? 'Например: 95' : per === 'шт' ? 'Например: 14' : 'Например: 1600') + '"></label>';
+  h += '<div class="hint">' + (pack ? 'Цена одной штуки. Упаковку собирай в наборы на вкладке «Упаковка».' : per === 'шт' ? (/эспрессо/.test(x.key) ? 'Порция эспрессо — это зерно на один шот: 9 г зерна по 1 600 ₽ за кг ≈ 14 ₽.' : 'В составе количество — в штуках или порциях.') : 'В составе количество — в ' + (per === 'л' ? 'миллилитрах' : 'граммах') + ': 260 при цене 95 ₽ за ' + per + ' — это ' + rubK(Math.round(260 * 95 / 10) / 100) + '.') + '</div>';
+  h += '<button class="btn main wide big mt" data-a="costIngSave">' + (a.isNew ? 'Добавить' : 'Сохранить') + '</button>';
+  if (a.isNew) return h + backBtn();
+  var cur = catAll()[a.key] || {};
+  if (typeof cur.price === 'number') h += '<button class="btn wide mt" data-a="costIngClear">Убрать цену</button>';
+  var uses = C.ingUses(S.db, a.key);
+  h += '<h3>Где используется · ' + uses.length + '</h3>' + (uses.length ? '<div class="list">' + uses.map(function (u) {
+    return u.pack ? '<button class="li" data-a="packEdit" data-v="' + esc(u.pack) + '"><div class="main-t"><b>Набор «' + esc(u.name) + '»</b><small>' + (u.size ? u.size + ' мл' : 'к любому размеру') + '</small></div><span class="nav-r">' + qtyTxt(u.q, 'шт') + '</span><span class="chev" aria-hidden="true"></span></button>'
+      : '<button class="li" data-a="costTtkOpen" data-id="' + u.id + '" data-v="' + u.size + '"><div class="main-t"><b>' + esc(u.name) + (u.size ? ' ' + u.size : '') + '</b></div><span class="nav-r">' + qtyTxt(u.q, u.u) + '</span><span class="chev" aria-hidden="true"></span></button>';
+  }).join('') + '</div>' : '<div class="note">Пока нигде.' + (pack ? ' Добавь в набор упаковки.' : ' Добавь в состав напитка через его карточку.') + '</div>');
+  if (x.aliases.length) h += '<h3>Так же называется в ТТК</h3><div class="list">' + x.aliases.map(function (k) { return '<div class="li"><div class="main-t"><b>' + esc(k) + '</b><small>считается как «' + esc(x.name) + '»</small></div><button class="btn sm" data-a="costUnmerge" data-v="' + esc(k) + '">Разъединить</button></div>'; }).join('') + '</div>';
+  h += '<button class="btn wide mt" data-a="costMergeOpen">Объединить с другим' + (pack ? '' : ' ингредиентом') + '…</button><div class="hint mt">Например, «сливок» и «Сливки» или разные сиропы по одной цене: везде будет одно название и одна цена.</div>';
+  if (cur.man) h += '<button class="btn danger wide mt" data-a="costIngDel">Удалить' + (uses.length ? ' — уберётся и из составов и наборов' : '') + '</button>';
+  return h + backBtn();
+};
+H.costIngSave = function () {
+  var a = S.sheet.args, raw = String(v('price')).replace(/\s/g, '').replace(',', '.'), name = String(v('iname')).trim();
+  if (!name) { toast('Введи название', 'err'); return; }
+  if (raw !== '' && !(parseFloat(raw) >= 0)) { toast('Цена — это число', 'err'); return; }
+  var x = a.isNew ? { kind: a.kind, u: a.kind === 'pack' ? 'шт' : '', key: C.ingKey(name) } : ingOf(a.key);
+  if (a.isNew && catAll()[x.key]) { toast('Такой уже есть в списке', 'err'); return; }
+  var r = act('cost.ing', { key: a.isNew ? name : a.key, name: name, per: a.per || x.per || guessPer(x), price: raw === '' ? '' : parseFloat(raw), kind: x.kind === 'pack' ? 'pack' : '', man: a.isNew });
+  if (!r) return;
+  haptic('ok'); toast(a.isNew ? 'Добавлено' : 'Сохранено', 'ok');
+  if (a.done) { var cb = a.done; back(); cb(x.key); return; }
+  back();
+};
+H.costIngClear = function () { var a = S.sheet.args; if (act('cost.ing', { key: a.key, price: '' })) toast('Цена убрана'); };
+H.costIngDel = function () { var a = S.sheet.args; ask('Удалить «' + ingLabel(a.key) + '»?', 'Удалить', function () { if (act('cost.ingDel', { key: a.key })) { toast('Удалено'); back(); } }); };
+H.costUnmerge = function (d) { if (act('cost.unmerge', { key: d.v })) toast('Теперь это отдельный ингредиент'); };
+H.costMergeOpen = function () {
+  var a = S.sheet.args, x = ingOf(a.key);
+  openPick(x.kind, 'С чем объединить «' + x.name + '»', function (to) {
+    ask('Объединить «' + x.name + '» с «' + ingLabel(to) + '»? Во всех составах будет «' + ingLabel(to) + '» и его цена.', 'Объединить', function () {
+      if (act('cost.merge', { from: a.key, to: to })) { haptic('ok'); toast('Объединено', 'ok'); back(); }
+    });
+  }, a.key);
+  S.sheet.args.allowNew = false;
+};
+
+// ===== Набор упаковки =====
+H.packEdit = function (d) {
+  var pk = d.v ? C.packOf(S.db, d.v) : null;
+  openSheet('packEdit', { id: pk ? pk.id : '', draft: pk ? C.clone(pk) : { name: '', all: [], s250: [], s350: [], s450: [] }, back: S.sheet }, true);
+};
+function packDraft() { var a = S.sheet.args, n = document.querySelector('#sheet [name="pname"]'); if (n) a.draft.name = n.value; return a.draft; }
+SHEETS.packEdit = function (a) {
+  var d = a.draft, def = (S.db.costs || {}).packDef;
+  var h = shHead(a.id ? 'Набор упаковки' : 'Новый набор', a.id ? esc(d.name) : '');
+  h += '<label class="field"><span>Название</span><input class="in" name="pname" maxlength="40" value="' + esc(d.name || '') + '" placeholder="Например: Горячий напиток"></label>';
+  [['all', 'К любому размеру и к еде'], ['s250', '250 мл'], ['s350', '350 мл'], ['s450', '450 мл']].forEach(function (sec) {
+    var list = d[sec[0]] || [], sum = 0, miss = false;
+    h += '<h3>' + sec[1] + '</h3>' + (list.length ? '<div class="list">' + list.map(function (x, i) {
+      var e = catAll()[resKey(x.k)] || {}, pr = typeof e.price === 'number' ? e.price * x.q : null; if (pr == null) miss = true; else sum += pr;
+      return '<div class="li rc-row"><button class="rc-n" data-a="costIngEdit" data-v="' + esc(x.k) + '"><b>' + esc(ingLabel(x.k)) + '</b>' + (pr == null ? '<small class="warn-t">нет цены</small>' : '') + '</button><input class="in rc-q" inputmode="decimal" data-ch="packQ" data-v="' + sec[0] + '" data-i="' + i + '" value="' + String(x.q).replace('.', ',') + '"><span class="rc-u">шт</span><span class="rc-c">' + (pr == null ? '—' : rubK(pr)) + '</span><button class="x" data-a="packItemDel" data-v="' + sec[0] + '" data-id="' + i + '" aria-label="Убрать">✕</button></div>';
+    }).join('') + '</div><div class="hint">' + (miss ? 'Не у всего есть цена.' : 'Итого ' + rubK(sum) + (sec[0] === 'all' ? ' к каждой порции.' : ' к порции ' + sec[1] + '.')) + '</div>' : '');
+    h += '<button class="btn sm mt" data-a="packItemAdd" data-v="' + sec[0] + '">+ Добавить</button>';
+  });
+  if (a.id) {
+    var drinks = S.db.ttk.filter(function (t) { var p = C.packFor(S.db, t); return p && p.id === a.id; });
+    h += '<h3>Напитки с этим набором · ' + drinks.length + '</h3>' + (drinks.length ? '<div class="note">' + drinks.slice(0, 12).map(function (t) { return esc(t.name); }).join(', ') + (drinks.length > 12 ? ' и ещё ' + (drinks.length - 12) : '') + '</div>' : '') +
+      '<button class="btn wide mt" data-a="packDrinks">Выбрать напитки</button>';
+    h += a.id === def ? '<div class="okbox mt">Набор по умолчанию: его получают все напитки с размерами, у которых не выбран другой.</div>' : '<button class="btn wide mt" data-a="packDefault">Сделать набором по умолчанию</button>';
+  }
+  h += '<button class="btn main wide big mt" data-a="packSave">Сохранить набор</button>';
+  if (a.id) h += '<button class="btn danger wide mt" data-a="packDel">Удалить набор</button>';
+  return h + backBtn();
+};
+H.packItemAdd = function (d) {
+  var dr = packDraft();
+  openPick('pack', 'Что добавить в набор', function (key) { var list = dr[d.v] = dr[d.v] || [], ex = list.filter(function (x) { return x.k === key; })[0]; if (ex) ex.q += 1; else list.push({ k: key, q: 1 }); renderSheet(); });
+};
+H.packItemDel = function (d) { var dr = packDraft(); (dr[d.v] || []).splice(+d.id, 1); renderSheet(); };
+CH.packQ = function (el) { var dr = packDraft(), raw = String(el.value).replace(/\s/g, '').replace(',', '.'), it = (dr[el.dataset.v] || [])[+el.dataset.i]; if (!it) return; if (parseFloat(raw) > 0) it.q = parseFloat(raw); else toast('Количество — больше нуля', 'err'); renderSheet(); };
+H.packSave = function () {
+  var a = S.sheet.args, dr = packDraft();
+  if (!String(dr.name || '').trim()) { toast('Введи название набора', 'err'); return; }
+  var r = act('pack.save', { item: { id: a.id || '', name: dr.name, all: dr.all || [], s250: dr.s250 || [], s350: dr.s350 || [], s450: dr.s450 || [] } });
+  if (r) { haptic('ok'); toast('Набор сохранён', 'ok'); if (!a.id && r.id) { a.id = r.id; renderSheet(); } else back(); }
+};
+H.packDel = function () { var a = S.sheet.args; ask('Удалить набор «' + a.draft.name + '»? Напитки с ним перейдут на набор по умолчанию.', 'Удалить', function () { if (act('pack.del', { id: a.id })) { toast('Набор удалён'); back(); } }); };
+H.packDefault = function () { var a = S.sheet.args; if (act('pack.def', { id: a.id })) { haptic('ok'); toast('Теперь это набор по умолчанию', 'ok'); } };
+H.packDrinks = function () {
+  var a = S.sheet.args, sel = {};
+  S.db.ttk.forEach(function (t) { var p = C.packFor(S.db, t); if (p && p.id === a.id) sel[t.id] = 1; });
+  openSheet('packDrinks', { id: a.id, sel: sel, back: S.sheet }, true);
+};
+H.packPick = function (d) { var s = S.sheet.args.sel; if (s[d.id]) delete s[d.id]; else s[d.id] = 1; renderSheet(); };
+H.packPickCat = function (d) {
+  var s = S.sheet.args.sel, list = S.db.ttk.filter(function (t) { return t.cat === d.v && !t.hidden; }), all = list.every(function (t) { return s[t.id]; });
+  list.forEach(function (t) { if (all) delete s[t.id]; else s[t.id] = 1; }); renderSheet();
+};
+SHEETS.packDrinks = function (a) {
+  var pk = C.packOf(S.db, a.id); if (!pk) return null;
+  var h = shHead('Напитки с набором', esc(pk.name)), n = Object.keys(a.sel).length;
+  h += '<div class="hint">Отмеченные получат этот набор. Если снять отметку с напитка, у него снова будет набор по умолчанию.</div>';
+  S.db.ttkCats.forEach(function (c) {
+    var list = S.db.ttk.filter(function (t) { return t.cat === c.id && !t.hidden; }); if (!list.length) return;
+    var all = list.every(function (t) { return a.sel[t.id]; });
+    h += '<div class="row mt" style="align-items:center"><h3 class="grow" style="margin:0">' + esc(c.name) + '</h3><button class="btn sm" data-a="packPickCat" data-v="' + c.id + '">' + (all ? 'Снять все' : 'Выбрать все') + '</button></div>';
+    h += '<div class="list">' + list.map(function (t) {
+      var cur = C.packFor(S.db, t);
+      return '<button class="li" data-a="packPick" data-id="' + t.id + '"><span class="em-ico">' + (a.sel[t.id] ? I('check') : '') + '</span><div class="main-t"><b>' + esc(t.name) + '</b><small>' + (cur ? 'сейчас: ' + esc(cur.name) : 'сейчас без упаковки') + '</small></div></button>';
+    }).join('') + '</div>';
+  });
+  h += '<button class="btn main wide big mt" data-a="packDrinksSave">Сохранить · ' + n + ' ' + plural(n, ['напиток', 'напитка', 'напитков']) + '</button>';
+  return h + backBtn();
+};
+H.packDrinksSave = function () {
+  var a = S.sheet.args, on = Object.keys(a.sel), off = S.db.ttk.filter(function (t) { return !a.sel[t.id] && t.pack === a.id; }).map(function (t) { return t.id; });
+  if (on.length && !act('ttk.pack', { ids: on, pack: a.id })) return;
+  if (off.length && !act('ttk.pack', { ids: off, pack: '' })) return;
+  haptic('ok'); toast('Сохранено', 'ok'); back();
+};
+
+// ===== Карточка напитка: состав с количеством, упаковка, цена =====
+function curSize(a, t) { var s = ttkSizes(t); return s.indexOf(a.size) >= 0 ? a.size : s[0] || ''; }
+function rcRows(t, size) { return C.recipeOf(S.db, t, size).map(function (p) { return { k: p.key, q: p.q, u: p.u0 || '' }; }); }
+function rcSave(t, size, rows) { return act('ttk.rc', { id: t.id, size: 's' + (size || '0'), rows: rows }); }
+H.costTtkOpen = function (d) { if (C.byId(S.db.ttk, d.id)) openSheet('costTtk', { id: d.id, size: d.v || '', item: d.item || '', back: S.sheet }, true); };
+H.costTtkSize = function (d) { S.sheet.args.size = d.v; renderSheet(); };
+SHEETS.costTtk = function (a) {
+  var t = C.byId(S.db.ttk, a.id); if (!t) return null;
+  var sizes = ttkSizes(t), size = curSize(a, t), tc = C.ttkCost(S.db, t, size), key = 's' + (size || '0'), own = t.rc && t.rc[key];
+  var h = shHead(t.name, 'себестоимость порции');
+  if (sizes.length > 1) h += seg(sizes.map(function (k) { return [k, k + ' мл']; }), size, 'costTtkSize');
+  // итог сверху
+  var price = t.price && t.price[key];
+  h += '<div class="bigkassa mt"><b>' + (tc.ok ? rubK(tc.cost) : '—') + '</b><small>' + (tc.ok ? (tc.pack ? 'продукты ' + rubK(tc.prod) + ' + упаковка ' + rubK(tc.pack) : 'себестоимость порции') : 'не хватает цен: ' + tc.missing.map(ingLabel).slice(0, 3).join(', ')) + '</small></div>';
+  if (tc.ok && price && tc.cost > 0) h += '<div class="grid3"><div class="mini"><b>' + pct1(tc.cost / price * 100) + '</b><small>фудкост</small></div><div class="mini"><b>' + rubK(price - tc.cost) + '</b><small>с порции</small></div><div class="mini"><b>' + Math.round((price - tc.cost) / tc.cost * 100) + '%</b><small>наценка</small></div></div>';
+  // состав
+  h += '<div class="row" style="align-items:center;margin-top:16px"><h3 class="grow" style="margin:0">Состав</h3>' + (own ? '<span class="badge">свой</span>' : '<span class="badge">из ТТК</span>') + '</div>';
+  if (tc.own) h += '<div class="warn mt">' + I('warn') + ' Продукты считаются по своей себестоимости ' + rubK(tc.prod) + ' — состав ниже только для справки (по нему вышло бы ' + (tc.calc.ok ? rubK(tc.calc.prod) : 'не посчитать') + ').</div>';
+  if (tc.parts.length) h += '<div class="list rc-list">' + tc.parts.map(function (p, i) {
+    return '<div class="li rc-row"><button class="rc-n" data-a="costIngEdit" data-v="' + esc(p.key) + '"><b>' + esc(p.name) + '</b>' + (p.q == null ? '<small class="warn-t">впиши количество</small>' : p.cost == null ? '<small class="warn-t">нет цены</small>' : '') + '</button>' +
+      '<input class="in rc-q" inputmode="decimal" data-ch="rcQty" data-i="' + i + '" value="' + (p.q == null ? '' : String(p.q).replace('.', ',')) + '" placeholder="—" aria-label="Количество"><span class="rc-u">' + esc(p.u || 'г') + '</span><span class="rc-c">' + (p.q == null ? '—' : p.cost == null ? '<span class="warn-t">?</span>' : rubK(p.cost)) + '</span><button class="x" data-a="rcDel" data-i="' + i + '" aria-label="Убрать">✕</button></div>';
+  }).join('') + '</div>';
+  else h += '<div class="note">' + (size ? 'Для ' + size + ' мл' : 'В ТТК') + ' состава нет — добавь ингредиенты.</div>';
+  h += '<div class="row mt" style="gap:8px"><button class="btn grow" data-a="rcAdd">+ Ингредиент</button>' + (own ? '<button class="btn grow" data-a="rcReset">Как в ТТК</button>' : '') + '</div>';
+  h += '<div class="hint mt">' + (own ? 'Состав изменён здесь и считается только для себестоимости — ТТК у бариста прежняя.' : 'Количество меняется прямо в строке, название — в карточке ингредиента. ТТК у бариста от этого не меняется.') + (own ? ' <button class="linkbtn" data-a="rcToTtk">Записать в ТТК</button>' : '') + '</div>';
+  // упаковка
+  var packs = packsAll(), curP = t.pack || '', defP = C.packOf(S.db, (S.db.costs || {}).packDef);
+  h += '<h3>Упаковка</h3><label class="field" style="margin-bottom:6px"><select class="in" name="tpack" data-ch="tpackCh"><option value=""' + (curP === '' ? ' selected' : '') + '>Набор по умолчанию' + (defP ? ' — ' + esc(defP.name) : '') + '</option>' + packs.map(function (pk) { return '<option value="' + esc(pk.id) + '"' + (curP === pk.id ? ' selected' : '') + '>' + esc(pk.name) + '</option>'; }).join('') + '<option value="-"' + (curP === '-' ? ' selected' : '') + '>Без упаковки</option></select></label>';
+  if (tc.packParts.length) h += '<div class="list">' + tc.packParts.map(function (p) { return '<button class="li" data-a="costIngEdit" data-v="' + esc(p.key) + '"><div class="main-t"><b>' + esc(p.name) + (p.q !== 1 ? ' × ' + String(p.q).replace('.', ',') : '') + '</b></div><span class="nav-r' + (p.cost == null ? ' warn-t' : '') + '">' + (p.cost == null ? 'нет цены' : rubK(p.cost)) + '</span></button>'; }).join('') + '</div>';
+  else h += '<div class="note">' + (tc.packName ? 'В наборе «' + esc(tc.packName) + '» нет ничего для ' + (size ? size + ' мл' : 'этой позиции') + '.' : 'Без упаковки.') + '</div>';
+  if (tc.packName) h += '<button class="btn wide mt" data-a="packEdit" data-v="' + esc(tc.packId) + '">Набор «' + esc(tc.packName) + '»</button>';
+  // цена и своя себестоимость
+  h += '<h3>Цена продажи' + (size ? ' ' + size + ' мл' : '') + '</h3><label class="field"><input class="in" name="sprice" inputmode="numeric" data-ch="spriceCh" value="' + (price || '') + '" placeholder="Например: 270" aria-label="Цена продажи"></label>';
+  var oc = t.cost && t.cost[key];
+  h += '<details class="rc-own mt"' + (oc != null ? ' open' : '') + '><summary>Своя себестоимость продуктов' + (oc != null ? ' · ' + rubK(oc) : '') + '</summary><div class="hint">Если не хочешь считать по составу — впиши итог продуктов на порцию (без упаковки). Пусто — считать по составу.</div><label class="field"><input class="in" name="scost" inputmode="decimal" data-ch="scostCh" value="' + (oc != null ? String(oc).replace('.', ',') : '') + '" placeholder="Пусто — по составу"></label></details>';
+  if (a.item) h += '<div class="hint mt">В кассе эта позиция называется «' + esc(a.item) + '».</div><button class="btn wide" data-a="costMapOpen" data-v="' + esc(a.item) + '">Это другой напиток</button>';
+  return h + backBtn();
+};
+CH.rcQty = function (el) {
+  var a = S.sheet.args, t = C.byId(S.db.ttk, a.id); if (!t) return;
+  var size = curSize(a, t), rows = rcRows(t, size), i = +el.dataset.i, raw = String(el.value).replace(/\s/g, '').replace(',', '.');
+  if (!rows[i]) return;
+  if (raw !== '' && !(parseFloat(raw) >= 0)) { toast('Количество — это число', 'err'); renderSheet(); return; }
+  rows[i].q = raw === '' ? null : parseFloat(raw);
+  rcSave(t, size, rows);
+};
+H.rcDel = function (d) { var a = S.sheet.args, t = C.byId(S.db.ttk, a.id), size = curSize(a, t), rows = rcRows(t, size); rows.splice(+d.i, 1); if (rcSave(t, size, rows)) toast('Убрано'); };
+H.rcAdd = function () {
+  var a = S.sheet.args, t = C.byId(S.db.ttk, a.id), size = curSize(a, t);
+  openPick('ing', 'Добавить в «' + t.name + (size ? ' ' + size : '') + '»', function (key) {
+    var rows = rcRows(t, size);
+    if (rows.some(function (r) { return resKey(r.k) === resKey(key); })) { toast('Уже есть в составе — поменяй количество', 'err'); return; }
+    rows.push({ k: key, q: null, u: '' });
+    if (rcSave(t, size, rows)) setTimeout(function () { var l = document.querySelectorAll('#sheet .rc-list .rc-q'); if (l.length) l[l.length - 1].focus(); }, 120);
+  });
+};
+H.rcReset = function () { var a = S.sheet.args, t = C.byId(S.db.ttk, a.id); ask('Вернуть состав как в ТТК? Изменения в этом размере пропадут.', 'Вернуть', function () { if (act('ttk.rcReset', { id: t.id, size: 's' + (curSize(a, t) || '0') })) toast('Состав как в ТТК'); }); };
+// Записать свой состав в текст ТТК — чтобы бариста готовил так же.
+H.rcToTtk = function () {
+  var a = S.sheet.args, t = C.byId(S.db.ttk, a.id), size = curSize(a, t);
+  if (!size) { toast('У этой позиции нет размеров — состав ТТК правится в самой ТТК', 'err'); return; }
+  var text = C.recipeOf(S.db, t, size).map(function (p) { return p.q == null ? p.name : (p.u0 === 'шт' || (p.u === 'шт' && /эспрессо/i.test(p.name)) ? p.q + 'х ' : p.u0 === 'г' ? p.q + ' гр ' : p.q + ' ') + p.name; }).join(' + ');
+  ask('Записать в ТТК ' + size + ' мл: «' + text + '»? Пояснения в скобках из старого текста пропадут.', 'Записать', function () {
+    var sz = C.clone(t.sizes); sz['s' + size] = text;
+    if (act('ttk.save', { item: { id: t.id, name: t.name, cat: t.cat, sizes: sz, composition: t.composition, tech: t.tech, notes: t.notes, time: t.time, hidden: !!t.hidden } }) && act('ttk.rcReset', { id: t.id, size: 's' + size })) { haptic('ok'); toast('ТТК обновлена', 'ok'); }
+  });
+};
+CH.tpackCh = function (el) { var a = S.sheet.args; if (act('ttk.pack', { ids: [a.id], pack: el.value })) toast('Набор выбран'); };
+CH.spriceCh = function (el) {
+  var a = S.sheet.args, t = C.byId(S.db.ttk, a.id); if (!t) return;
+  var pk = 's' + (curSize(a, t) || '0'), raw = String(el.value).replace(/\s/g, '').replace(',', '.'), pr = C.clone(t.price || {});
+  if (raw === '') delete pr[pk]; else { if (!(parseFloat(raw) >= 0)) { toast('Цена — это число', 'err'); renderSheet(); return; } pr[pk] = Math.round(parseFloat(raw)); }
+  if (act('ttk.price', { id: t.id, price: pr })) toast(raw === '' ? 'Цена убрана' : 'Цена сохранена', 'ok');
+};
+CH.scostCh = function (el) {
+  var a = S.sheet.args, t = C.byId(S.db.ttk, a.id); if (!t) return;
+  var raw = String(el.value).replace(/\s/g, '').replace(',', '.');
+  if (raw !== '' && !(parseFloat(raw) >= 0)) { toast('Себестоимость — это число', 'err'); renderSheet(); return; }
+  if (act('ttk.cost', { id: t.id, size: 's' + (curSize(a, t) || '0'), cost: raw === '' ? '' : parseFloat(raw) })) toast(raw === '' ? 'Считаю по составу' : 'Своя себестоимость сохранена', 'ok');
+};
+
+// ===== Позиция кассы → напиток из ТТК или своя себестоимость (и набор упаковки к ней) =====
+H.costMapOpen = function (d) { openSheet('costMap', { name: d.v, back: S.sheet }, true); };
+SHEETS.costMap = function (a) {
+  var m = ((S.db.costs || {}).map || {})[a.name], auto = m ? null : C.itemMatch(S.db, a.name), mt = m && m.t ? C.byId(S.db.ttk, m.t) : null, packs = packsAll();
+  var h = shHead('Позиция кассы', esc(a.name));
+  h += '<div class="note">' + (m ? (m.x ? 'Сейчас: не товар, в отчётах не учитывается.' : m.c != null ? 'Сейчас: своя себестоимость ' + rubK(m.c) + ' за штуку' + (m.p && C.packOf(S.db, m.p) ? ' + набор «' + esc(C.packOf(S.db, m.p).name) + '»' : '') + '.' : 'Сейчас: ' + esc((mt || {}).name || '?') + (m.s ? ' ' + m.s + ' мл' : '') + '.')
+    : auto && auto.t ? 'Сейчас нашлось по названию: ' + esc(auto.t.name) + (auto.size ? ' ' + auto.size + ' мл' : '') + '.' : 'Такого напитка в ТТК не нашёл.') + '</div>';
+  var sel = m && m.t || (auto && auto.t ? auto.t.id : ''), selS = (m && m.s) || (auto && auto.t ? auto.size : '');
+  h += '<h3>Это напиток из ТТК</h3><label class="field"><span>Напиток</span><select class="in" name="mt"><option value="">— выбери —</option>' + S.db.ttk.filter(function (t) { return !t.hidden; }).map(function (t) { return '<option value="' + t.id + '"' + (t.id === sel ? ' selected' : '') + '>' + esc(t.name) + '</option>'; }).join('') + '</select></label>';
+  h += '<label class="field"><span>Размер</span><select class="in" name="ms"><option value="">первый из ТТК</option>' + ['250', '350', '450'].map(function (k) { return '<option value="' + k + '"' + (k === selS ? ' selected' : '') + '>' + k + ' мл</option>'; }).join('') + '</select></label>';
+  h += '<button class="btn main wide" data-a="costMapSave" data-v="t">Привязать к напитку</button>';
+  h += '<h3>Или своя себестоимость</h3><label class="field"><span>Продукты на одну штуку, ₽</span><input class="in" name="mc" inputmode="decimal" value="' + (m && m.c != null ? String(m.c).replace('.', ',') : '') + '" placeholder="Например: 85 — круассан от поставщика"></label>';
+  h += '<label class="field"><span>Упаковка</span><select class="in" name="mp"><option value="">Без упаковки</option>' + packs.map(function (pk) { return '<option value="' + esc(pk.id) + '"' + (m && m.p === pk.id ? ' selected' : '') + '>' + esc(pk.name) + (packSum(pk, '') != null && (pk.all || []).length ? ' — ' + rubK(packSum(pk, '')) : '') + '</option>'; }).join('') + '</select></label>';
+  h += '<button class="btn wide" data-a="costMapSave" data-v="c">Сохранить себестоимость</button>';
+  h += '<button class="btn wide mt" data-a="costMapSave" data-v="x">Это не товар — не учитывать (пакет, чаевые)</button>';
+  if (m) h += '<button class="btn wide mt" data-a="costMapSave" data-v="reset">Сбросить — искать по названию</button>';
+  return h + backBtn();
+};
+H.costMapSave = function (d) {
+  var a = S.sheet.args, to = null;
+  if (d.v === 't') { if (!v('mt')) { toast('Выбери напиток', 'err'); return; } to = { t: v('mt'), s: v('ms') }; }
+  else if (d.v === 'c') { var raw = String(v('mc')).replace(/\s/g, '').replace(',', '.'); if (raw === '' || !(parseFloat(raw) >= 0)) { toast('Укажи себестоимость числом', 'err'); return; } to = { c: parseFloat(raw), p: v('mp') }; }
+  else if (d.v === 'x') to = { x: 1 };
+  if (act('cost.map', { name: a.name, to: to })) { haptic('ok'); toast('Сохранено', 'ok'); back(); }
+};
+
+// --- абонементы ---
+H.cardsRepOpen = function () { openSheet('cardsRep', { month: curMonth() }, true); };
+H.cardsRepMonth = function (d) { var a = S.sheet.args, m = monthShift(a.month, +d.d); if (m > curMonth()) return; a.month = m; renderSheet(); };
+H.cardRepOpen = function (d) { openSheet('card', { id: d.id, back: S.sheet }, true); };
+function monthRange(m) { var t = todayISO(), last = m + '-' + pad(daysIn(m)); return [m + '-01', last < t ? last : t]; }
+function cardLine(x, sub) { return '<button class="li" data-a="cardRepOpen" data-id="' + x.id + '"><div class="main-t"><b>№' + x.num + ' · ' + esc(x.client) + '</b><small>' + sub + '</small></div><span class="chev" aria-hidden="true"></span></button>'; }
+SHEETS.cardsRep = function (a) {
+  var t = todayISO(), m = a.month, rg = monthRange(m), r = C.cardsReport(S.db, rg[0], rg[1], t), pm = monthShift(m, -1), p = C.cardsReport(S.db, pm + '-01', pm + '-' + pad(daysIn(pm)), t);
+  var h = shHead('Абонементы', 'на ' + dayShort(t));
+  if (!S.db.cards.length) return h + '<div class="empty">Абонементов пока нет.</div>';
+  h += '<div class="bigkassa"><b>' + grp(r.debtDrinks) + ' ' + plural(r.debtDrinks, F_DRINKS) + '</b><small>сейчас гостям должны' + (r.debtSum ? ' · ≈ ' + money(r.debtSum) : '') + '</small></div>';
+  h += '<div class="grid3"><div class="mini"><b>' + r.active + '</b><small>' + plural(r.active, ['активный', 'активных', 'активных']) + '</small></div><div class="mini"><b>' + r.expiring.length + '</b><small>скоро сгорят</small></div><div class="mini"><b>' + r.gone.length + '</b><small>давно не были</small></div></div>';
+  h += '<div class="hint mt">Должны — напитки на активных абонементах: деньги уже получены, а напитки ещё не выданы.</div>';
+  h += '<div class="monthbar mt"><button class="arrow l" data-a="cardsRepMonth" data-d="-1" aria-label="Предыдущий месяц"></button><b>' + monthName(m) + '</b><button class="arrow r" data-a="cardsRepMonth" data-d="1" aria-label="Следующий месяц"' + (m >= curMonth() ? ' disabled' : '') + '></button></div>';
+  h += '<div class="grid3"><div class="mini"><b>' + r.sold + '</b><small>' + plural(r.sold, ['продан', 'продано', 'продано']) + '</small></div><div class="mini"><b>' + grp(r.soldSum) + '</b><small>₽ с продаж</small></div><div class="mini"><b>' + r.marks + '</b><small>' + plural(r.marks, F_DRINKS) + ' выпито</small></div></div>';
+  var parts = []; if (r.newN) parts.push('новых ' + r.newN); if (r.renewN) parts.push('продлений ' + r.renewN); if (r.stampN) parts.push('карт гостя выдано ' + r.stampN);
+  h += '<div class="note mt">' + (parts.length ? parts.join(', ').replace(/^./, function (c) { return c.toUpperCase(); }) + '. ' : 'Продаж в этом месяце не было. ') + (p.sold || p.marks ? 'В ' + esc(MONTHS_P[+pm.slice(5) - 1] || 'прошлом месяце') + ': продано ' + p.sold + ', выпито ' + p.marks + '.' : '') + '</div>';
+  if (r.noPrice) h += '<div class="warn mt">' + I('warn') + ' У ' + r.noPrice + ' ' + plural(r.noPrice, ['продажи', 'продаж', 'продаж']) + ' нет цены. Укажи цену в видах абонементов — тогда посчитаю деньги и долг в рублях.</div><button class="btn wide mt" data-a="settings" data-v="g-pass">Виды абонементов</button>';
+  if (r.byType.length > 1 || (r.byType.length && r.soldSum)) h += '<h3>Какие покупают</h3><div class="list">' + r.byType.map(function (x) { return '<div class="li"><div class="main-t"><b>' + esc(x.name) + '</b><small>' + x.n + ' ' + plural(x.n, ['продажа', 'продажи', 'продаж']) + '</small></div><div class="end">' + (x.s ? money(x.s) : '—') + '</div></div>'; }).join('') + '</div>';
+  if (r.marks) {
+    var wdl = r.wd.map(function (n, i) { return { v: n, l: WD_S[i], t: WD_FULL[i] + ': ' + n }; }), pk = null; wdl.forEach(function (x) { if (!pk || x.v > pk.v) pk = x; });
+    h += '<h3>Визиты</h3><div class="note">' + r.marks + ' ' + plural(r.marks, F_DRINKS) + ' у ' + r.guests + ' ' + plural(r.guests, ['гостя', 'гостей', 'гостей']) + ' — в среднем ' + n1(r.marks / Math.max(1, r.guests)) + ' на гостя' + (r.gifts ? ', подарков выдано ' + r.gifts : '') + '. Чаще всего приходят ' + (WD_ON[WD_S.indexOf(pk.l)] || '') + '.</div>' + vbars(wdl, pk);
+    if (r.byStaff.length) h += '<div class="list mt">' + r.byStaff.map(function (x) { return '<div class="li"><div class="main-t"><b>' + esc(x.name) + '</b><small>' + plural(x.n, ['отметка', 'отметки', 'отметок']) + ' в абонементах</small></div><div class="end">' + x.n + '</div></div>'; }).join('') + '</div>';
+  }
+  if (r.finished) h += '<div class="note mt">Закончились за месяц: ' + r.finished + ' ' + plural(r.finished, ['абонемент', 'абонемента', 'абонементов']) + (r.finDays ? ', в среднем за ' + Math.round(r.finDays / r.finished) + ' ' + plural(Math.round(r.finDays / r.finished), ['день', 'дня', 'дней']) : '') + '.</div>';
+  if (r.expiring.length) h += '<h3>Скоро сгорят</h3><div class="list">' + r.expiring.map(function (x) { return cardLine(x, 'осталось ' + x.left + ' ' + plural(x.left, F_DRINKS) + ' · ' + (x.days < 0 ? 'срок вышел' : x.days === 0 ? 'сгорает сегодня' : 'сгорает через ' + x.days + ' ' + plural(x.days, ['день', 'дня', 'дней'])) + (x.phone ? ' · ' + esc(x.phone) : '')); }).join('') + '</div><div class="hint">Напомни гостю — он придёт, а ты не потеряешь его доверие.</div>';
+  if (r.gone.length) h += '<h3>Давно не заходили</h3><div class="list">' + r.gone.slice(0, 10).map(function (x) { return cardLine(x, (x.last ? 'не был ' + x.idle + ' ' + plural(x.idle, ['день', 'дня', 'дней']) : 'ни разу не приходил') + (x.left ? ' · осталось ' + x.left + ' ' + plural(x.left, F_DRINKS) : x.stamp ? ' · на карте ' + x.stamp + ' ' + plural(x.stamp, ['отметка', 'отметки', 'отметок']) : '') + (x.phone ? ' · ' + esc(x.phone) : '')); }).join('') + '</div><div class="hint">Больше трёх недель без визита. Короткое сообщение «скучаем, ваш капучино ждёт» часто возвращает гостя.</div>';
+  if (r.top.length) h += '<h3>Самые частые гости месяца</h3><div class="list">' + r.top.map(function (x) { return cardLine(x, x.n + ' ' + plural(x.n, ['визит', 'визита', 'визитов'])); }).join('') + '</div>';
+  if (r.est) h += '<div class="hint mt">Даты продлений, сделанных до обновления, восстановлены по первым отметкам — могут чуть отличаться.</div>';
+  return h;
+};
+
 H.tab = function (d) { S.tab = d.v; S.page = null; closeSheet(); renderAll(); document.getElementById('scroll').scrollTop = 0; haptic('light'); };
 H.go = function (d) { S.page = d.v; renderAll(); document.getElementById('scroll').scrollTop = 0; haptic('light'); };
 H.pageBack = function () { if (S.page) S.page = null; else if (S.tab === 'settings') S.tab = S.prevTab || 'today'; renderAll(); document.getElementById('scroll').scrollTop = 0; };
@@ -4953,7 +6692,7 @@ function copy(text) {
 H.passNew = function () { openSheet('passEdit', { isNew: true, item: { name: '', kind: 'prepaid', drinks: 10, days: 30, reward: '', color: COLORS[1] } }); };
 H.passEdit = function (d) { openSheet('passEdit', { item: C.clone(C.byId(S.db.passTypes, d.id)) }); };
 H.pickPassKind = function (d) { var a = S.sheet.args; a.item.name = v('name'); a.item.drinks = v('drinks'); a.item.kind = d.v; if (d.v === 'stamp' && !a.item.reward) a.item.reward = 'Напиток в подарок'; renderSheet(); };
-H.passSave = function () { var a = S.sheet.args; if (act('passType.save', { item: { id: a.item.id || C.genId('p'), name: v('name'), kind: v('kind'), drinks: v('drinks'), days: v('days'), reward: v('reward'), color: v('color') } })) { toast('Сохранено', 'ok'); closeSheet(); } };
+H.passSave = function () { var a = S.sheet.args; if (act('passType.save', { item: { id: a.item.id || C.genId('p'), name: v('name'), kind: v('kind'), drinks: v('drinks'), days: v('days'), reward: v('reward'), color: v('color'), price: String(v('price')).replace(/\s/g, '') } })) { toast('Сохранено', 'ok'); closeSheet(); } };
 H.passDel = function () { var id = S.sheet.args.item.id; ask('Удалить этот вид абонемента?', 'Удалить', function () { if (act('passType.delete', { id: id })) closeSheet(); }); };
 H.presets = function () { openSheet('presets', {}); };
 H.presetsSave = function () {
@@ -4972,6 +6711,8 @@ H.demoSet = function (d) { Demo.setMe(d.id); S.who = null; setData(Demo.view());
 H.demoReset = function () { ask('Вернуть демо-данные к исходным?', 'Сбросить', function () { Demo.reset(); S.who = null; setData(Demo.view()); renderAll(); toast('Демо-данные сброшены', 'ok'); }); };
 
 var IN = {};
+IN.kitQ = function (val) { inKitQ(val); };
+IN.pickQ = function (val) { inPickQ(val); };
 IN.markComment = function (val) { if (S.sheet) S.sheet.args.comment = val; };
 IN.ttkQ = function (val) { S.ttkQ = val; S.ttkCat = 'all'; NAV = navFor('menu'); var l = document.getElementById('ttk-list'); if (l) l.innerHTML = wrapNav(ttkList()); };
 IN.cpV = function (val) {
